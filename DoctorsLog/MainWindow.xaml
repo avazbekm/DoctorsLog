@@ -131,7 +131,7 @@
                         </StackPanel>
 
                         <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="15" BorderBrush="#E0E0E0" BorderThickness="1">
-                            <DataGrid x:Name="PatientsDataGrid" AutoGenerateColumns="True"
+                            <DataGrid x:Name="PatientsDataGrid" AutoGenerateColumns="False"
                                       IsReadOnly="True" HeadersVisibility="Column"
                                       GridLinesVisibility="Horizontal"
                                       RowBackground="#F9F9F9"
@@ -142,7 +142,7 @@
                                     <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
                                     <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>
                                     <DataGridTextColumn Header="Manzili" Binding="{Binding Address}" Width="*"/>
-                                    <DataGridTextColumn Header="Telefoni" Binding="{Binding Phone}" Width="*"/>
+                                    <DataGridTextColumn Header="Telefoni" Binding="{Binding PhoneNumber}" Width="*"/>
                                     <DataGridTemplateColumn Header="Amallar" Width="Auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
