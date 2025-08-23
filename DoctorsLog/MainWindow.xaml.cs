@@ -108,9 +108,6 @@ public partial class MainWindow : Window
         // Info kartalar panelini yashiramiz
         InfoCardsPanel.Visibility = Visibility.Collapsed;
 
-        // tbSearch'ga fokus berish uchun
-        tbSearch.Focus();
-
         // MainContentControl'ga bemorlar view'ini yuklaymiz
         MainContentControl.Content = patientsView;
 
@@ -330,5 +327,10 @@ public partial class MainWindow : Window
             else if (sender == tbPhone)
                 btnSave.Focus();
         }
+    }
+
+    private void PatientsView_Loaded(object sender, RoutedEventArgs e)
+    {
+        tbSearch.Focus();
     }
 }
