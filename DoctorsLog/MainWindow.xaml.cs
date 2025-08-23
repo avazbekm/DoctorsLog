@@ -264,13 +264,13 @@ public partial class MainWindow : Window
     private void CalendarBirthDate_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
     {
         if (calendarBirthDate.SelectedDate is DateTime selectedDate)
-        {
             txtBirthDate.Text = selectedDate.ToString("dd.MM.yyyy");
-        }
+
         popupBirthDate.IsOpen = false;
     }
 
-    private void TbPhone_TextChanged(object sender, TextChangedEventArgs e) => FormatPhoneNumber((sender as TextBox)!);
+    private void TbPhone_TextChanged(object sender, TextChangedEventArgs e) 
+        => FormatPhoneNumber((sender as TextBox)!);
 
     private void FormatPhoneNumber(TextBox textBox)
     {
