@@ -107,7 +107,7 @@ public partial class MainWindow : Window
         MainContentControl.Content = null;
     }
 
-    private void ShowPatientsView()
+    private async void ShowPatientsView()
     {
         // Info kartalar panelini yashiramiz
         InfoCardsPanel.Visibility = Visibility.Collapsed;
@@ -116,7 +116,7 @@ public partial class MainWindow : Window
         MainContentControl.Content = patientsView;
 
         // Bemorlar ro'yxatini yangilash
-        var patients = db.Patients.ToList();
+        var patients = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
         PatientsDataGrid.ItemsSource = patients;
         PatientsDataGrid.SelectedIndex = 0;
     }
@@ -260,7 +260,7 @@ public partial class MainWindow : Window
         popupBirthDate.IsOpen = false;
     }
 
-    private void TbPhone_TextChanged(object sender, TextChangedEventArgs e) 
+    private void TbPhone_TextChanged(object sender, TextChangedEventArgs e)
         => FormatPhoneNumber((sender as TextBox)!);
 
     private void FormatPhoneNumber(TextBox textBox)
@@ -324,14 +324,19 @@ public partial class MainWindow : Window
 
     private async void BtnSave_Click(object sender, RoutedEventArgs e)
     {
-        var patient = new Entities.Patient
+        var patient = new Patient
         {
             FirstName = tbFirstName.Text.Trim(),
             LastName = tbLastName.Text.Trim(),
             Address = tbAddress.Text.Trim(),
             PhoneNumber = tbPhone.Text.Trim(),
-            DateOfBirth = DateOnly.ParseExact(txtBirthDate.Text.Trim(), "dd.MM.yyyy"),
-            CreatedAt = DateTimeOffset.Now
+            DateOfBirth = DateTime.ParseExact(
+                            txtBirthDate.Text.Trim(),
+                            "dd.MM.yyyy",
+                            System.Globalization.CultureInfo.InvariantCulture
+                        ),
+
+            CreatedAt = DateTime.Now
         };
 
         db.Patients.Add(patient);
@@ -345,7 +350,7 @@ public partial class MainWindow : Window
             tbAddress.Clear();
             tbPhone.Clear();
             tbFirstName.Focus();
-            PatientsDataGrid.ItemsSource = db.Patients.ToList();
+            PatientsDataGrid.ItemsSource = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
         }
         else
         {
@@ -369,7 +374,7 @@ public partial class MainWindow : Window
             return await db.Patients.ToListAsync();
 
         return await db.Patients
-            .Where(p => 
+            .Where(p =>
                 p.FirstName.ToLower().Contains(loweredQuery) ||
                 p.PhoneNumber.ToLower().Contains(loweredQuery) ||
                 p.LastName.ToLower().Contains(loweredQuery) ||
@@ -378,35 +383,34 @@ public partial class MainWindow : Window
             ).ToListAsync();
     }
 
-
-    #region Index Column (Qator tartib raqamini aniqlash)
-    private void IndexBlock_Loaded(object sender, RoutedEventArgs e)
+    private void PatientsDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
     {
-        if (sender is TextBlock tb)
-        {
-            var row = FindParent<DataGridRow>(tb);
-
-            if (ItemsControl.ItemsControlFromItemContainer(row) is DataGrid dataGrid)
-            {
-                int index = dataGrid.ItemContainerGenerator.IndexFromContainer(row);
-                tb.Text = (index + 1).ToString(); // 1-based index
-            }
-        }
+        e.Row.Header = (e.Row.GetIndex() + 1).ToString();
     }
-
-
-    private static T FindParent<T>(DependencyObject child) where T : DependencyObject
-    {
-        DependencyObject parent = VisualTreeHelper.GetParent(child);
-        while (parent != null && parent is not T)
-            parent = VisualTreeHelper.GetParent(parent);
-
-        return parent as T;
-    }
-    #endregion
 
     private void PatientsView_Loaded(object sender, RoutedEventArgs e)
     {
         tbSearch.Focus();
+    }
+
+    private async void BtnDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.DataContext is Patient patient)
+        {
+            var result = MessageBox.Show($"Bemorni o'chirishga ishonchingiz komilmi?\n{patient.FirstName} {patient.LastName}","Tasdiqlash", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                db.Patients.Remove(patient);
+                await db.SaveAsync();
+
+                PatientsDataGrid.ItemsSource = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
+            }
+        }
+    }
+
+    private void BtnEditPatientInfo_Click(object sender, RoutedEventArgs e)
+    {
+
     }
 }

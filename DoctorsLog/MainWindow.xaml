@@ -194,27 +194,40 @@
 
                             <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
                                 <TextBox x:Name="tbPhone"
-                 Padding="10 5"
-                 MinWidth="155"
-                 FontSize="16"
-                 md:HintAssist.Hint="+998 "
-                 Style="{DynamicResource MaterialDesignTextBox}"
-                 BorderThickness="0"
-                 Background="Transparent"
-                 TextChanged="TbPhone_TextChanged"
-                 KeyDown="TextBox_KeyDown"/>
+                                         Padding="10 5"
+                                         MinWidth="155"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="+998 "
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         TextChanged="TbPhone_TextChanged"
+                                         KeyDown="TextBox_KeyDown"/>
                             </Border>
 
-                            <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 5" BorderThickness='0'/>
+                            <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 5" Click="BtnSave_Click" BorderThickness='0'/>
                         </WrapPanel>
                         <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1">
-                            <DataGrid x:Name="PatientsDataGrid"  AutoGenerateColumns="False"
-                                      IsReadOnly="True" HeadersVisibility="Column"
+                            <DataGrid x:Name="PatientsDataGrid"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      HeadersVisibility="Column"
                                       GridLinesVisibility="Horizontal"
                                       RowBackground="#F9F9F9"
-                                      AlternatingRowBackground="#F0F0F0" SelectionChanged="PatientsDataGrid_SelectionChanged">
+                                      AlternatingRowBackground="#F0F0F0"
+                                      SelectionChanged="PatientsDataGrid_SelectionChanged"
+                                      LoadingRow="PatientsDataGrid_LoadingRow">
+
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="T/r" Binding="{Binding TartibNomer}" Width="50"/>
+                                    <DataGridTemplateColumn Header="T/r" Width="50">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Header}"
+                                                       HorizontalAlignment="Center"
+                                                       FontWeight="Bold"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
                                     <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
                                     <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>
@@ -224,8 +237,9 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Content="O'zgartirish" Background="#6A9B9B" Margin="0,0,5,0"/>
-                                                    <Button Content="O'chirish" Background="#F44336"/>
+                                                    <Button Content="Retseplar" Background="#6A9B9B" Margin="0,0,5,0"/>
+                                                    <Button Content="O'zgartirish" Background="#ccb50a" Margin="0,0,5,0" Click="BtnEditPatientInfo_Click"/>
+                                                    <Button Content="O'chirish" Background="#F44336" Click="BtnDelete_Click"/>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
