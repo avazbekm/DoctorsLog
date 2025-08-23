@@ -1,8 +1,9 @@
 
 using DoctorsLog.Services;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
@@ -14,6 +15,7 @@ public partial class MainWindow : Window
     private Grid prescriptionsView;
     private IAppDbContext db;
 
+#nullable disable
     public MainWindow()
     {
         InitializeComponent();
@@ -142,7 +144,7 @@ public partial class MainWindow : Window
         var comboBox = new ComboBox { Width = 200, Margin = new Thickness(0, 0, 10, 0) };
         comboBox.Items.Add("Retsept 1");
         comboBox.Items.Add("Retsept 2");
-        var addButton = new Button { Content = "Qo'shish", Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)), Foreground = Brushes.White, Padding = new Thickness(8, 4,4,4) }; // Padding xatosi to'g'rilandi
+        var addButton = new Button { Content = "Qo'shish", Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)), Foreground = Brushes.White, Padding = new Thickness(8, 4, 4, 4) }; // Padding xatosi to'g'rilandi
         topPanel.Children.Add(comboBox);
         topPanel.Children.Add(addButton);
         Grid.SetRow(topPanel, 0);
@@ -186,14 +188,14 @@ public partial class MainWindow : Window
         editButton.SetValue(Button.ForegroundProperty, Brushes.White);
         editButton.SetValue(Button.MarginProperty, new Thickness(0, 0, 5, 0));
         editButton.SetValue(Button.BorderThicknessProperty, new Thickness(0));
-        editButton.SetValue(Button.PaddingProperty, new Thickness(8, 4,4,4));
+        editButton.SetValue(Button.PaddingProperty, new Thickness(8, 4, 4, 4));
 
         var deleteButton = new FrameworkElementFactory(typeof(Button));
         deleteButton.SetValue(Button.ContentProperty, "O'chirish");
         deleteButton.SetValue(Button.BackgroundProperty, new SolidColorBrush(Color.FromRgb(244, 67, 54)));
         deleteButton.SetValue(Button.ForegroundProperty, Brushes.White);
         deleteButton.SetValue(Button.BorderThicknessProperty, new Thickness(0));
-        deleteButton.SetValue(Button.PaddingProperty, new Thickness(8, 4,4,4));
+        deleteButton.SetValue(Button.PaddingProperty, new Thickness(8, 4, 4, 4));
 
         stackPanel.AppendChild(editButton);
         stackPanel.AppendChild(deleteButton);
@@ -212,7 +214,7 @@ public partial class MainWindow : Window
 
         return grid;
     }
-    
+
     private void PatientsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
 
@@ -252,12 +254,12 @@ public partial class MainWindow : Window
         e.Handled = !Regex.IsMatch(e.Text, @"[\d\.]");
     }
 
-    private void btnBirthCalendar_Click(object sender, RoutedEventArgs e)
+    private void BtnBirthCalendar_Click(object sender, RoutedEventArgs e)
     {
         popupBirthDate.IsOpen = true;
     }
 
-    private void calendarBirthDate_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+    private void CalendarBirthDate_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
     {
         if (calendarBirthDate.SelectedDate is DateTime selectedDate)
         {
@@ -266,10 +268,7 @@ public partial class MainWindow : Window
         popupBirthDate.IsOpen = false;
     }
 
-    private void tbPhone_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        FormatPhoneNumber(sender as TextBox);
-    }
+    private void TbPhone_TextChanged(object sender, TextChangedEventArgs e) => FormatPhoneNumber((sender as TextBox)!);
 
     private void FormatPhoneNumber(TextBox textBox)
     {
@@ -278,7 +277,7 @@ public partial class MainWindow : Window
         string digits = Regex.Replace(text, @"[^\d]", "");
 
         // TextChanged hodisasining qayta-qayta chaqirilishini oldini olish
-        textBox.TextChanged -= tbPhone_TextChanged;
+        textBox.TextChanged -= TbPhone_TextChanged;
 
         try
         {
@@ -312,7 +311,7 @@ public partial class MainWindow : Window
         finally
         {
             // O'zgartirilganidan keyin hodisani qayta yoqish
-            textBox.TextChanged += tbPhone_TextChanged;
+            textBox.TextChanged += TbPhone_TextChanged;
         }
     }
     private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)

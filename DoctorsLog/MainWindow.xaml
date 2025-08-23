@@ -170,10 +170,10 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBox x:Name="txtBirthDate" Padding="5 0" BorderThickness="0" Background="#FFFFFF" Width="100" Height="30" FontSize="15" Style="{StaticResource MaterialDesignOutlinedTextBox}" VerticalContentAlignment="Center" PreviewTextInput="DateTextBox_PreviewTextInput" KeyDown="TextBox_KeyDown" TextChanged="DateTextBox_TextChanged"/>
-                                        <Button Grid.Column="1" Content="📆" Width="20" Height="20" Padding="0" BorderThickness="0" Margin="3,0,7,0" Background="#E6EEF4" Click="btnBirthCalendar_Click"/>
+                                        <Button Grid.Column="1" Content="📆" Width="20" Height="20" Padding="0" BorderThickness="0" Margin="3,0,7,0" Background="#E6EEF4" Click="BtnBirthCalendar_Click"/>
                                         <Popup x:Name="popupBirthDate" PlacementTarget="{Binding ElementName=txtBirthDate}" StaysOpen="False">
                                             <Border Background="White" BorderBrush="Gray" BorderThickness="1">
-                                                <Calendar x:Name="calendarBirthDate" SelectedDatesChanged="calendarBirthDate_SelectedDatesChanged"/>
+                                                <Calendar x:Name="calendarBirthDate" SelectedDatesChanged="CalendarBirthDate_SelectedDatesChanged"/>
                                             </Border>
                                         </Popup>
                                     </Grid>
@@ -200,7 +200,7 @@
                                          Style="{DynamicResource MaterialDesignTextBox}"
                                          BorderThickness="0"
                                          Background="Transparent" 
-                                         TextChanged="tbPhone_TextChanged" 
+                                         TextChanged="TbPhone_TextChanged" 
                                          KeyDown="TextBox_KeyDown"/>
                             </Border>
                             <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 0" BorderThickness='0'/>
