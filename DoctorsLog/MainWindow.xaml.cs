@@ -1,10 +1,11 @@
 
 using DoctorsLog.Services;
-using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Text.RegularExpressions;
+
 using System.Windows.Media;
-using System.Windows.Controls;
 
 namespace DoctorsLog;
 
@@ -73,6 +74,10 @@ public partial class MainWindow : Window
     {
         // Info kartalar panelini yashiramiz
         InfoCardsPanel.Visibility = Visibility.Collapsed;
+
+        // tbSearch'ga fokus berish uchun
+        tbSearch.Focus();
+
         // MainContentControl'ga bemorlar view'ini yuklaymiz
         MainContentControl.Content = patientsView;
 
@@ -180,5 +185,120 @@ public partial class MainWindow : Window
     private void PatientsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
 
+    }
+
+    private void PatientsDataGrid_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
+    {
+
+    }
+
+    private void DateTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        var tb = sender as TextBox;
+        string digits = Regex.Replace(tb.Text, @"[^\d]", "");
+        if (digits.Length > 8)
+            digits = digits.Substring(0, 8);
+        string formatted = FormatDate(digits);
+        tb.TextChanged -= DateTextBox_TextChanged;
+        tb.Text = formatted;
+        tb.CaretIndex = tb.Text.Length;
+        tb.TextChanged += DateTextBox_TextChanged;
+    }
+
+    private string FormatDate(string input)
+    {
+        if (input.Length <= 2)
+            return input;
+        else if (input.Length <= 4)
+            return input.Insert(2, ".");
+        else if (input.Length <= 8)
+            return input.Insert(2, ".").Insert(5, ".");
+        else
+            return input;
+    }
+    private void DateTextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+    {
+        e.Handled = !Regex.IsMatch(e.Text, @"[\d\.]");
+    }
+
+    private void btnBirthCalendar_Click(object sender, RoutedEventArgs e)
+    {
+        popupBirthDate.IsOpen = true;
+    }
+
+    private void calendarBirthDate_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (calendarBirthDate.SelectedDate is DateTime selectedDate)
+        {
+            txtBirthDate.Text = selectedDate.ToString("dd.MM.yyyy");
+        }
+        popupBirthDate.IsOpen = false;
+    }
+
+    private void tbPhone_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        FormatPhoneNumber(sender as TextBox);
+    }
+
+    private void FormatPhoneNumber(TextBox textBox)
+    {
+        if (textBox == null) return;
+        string text = textBox.Text?.Trim() ?? string.Empty;
+        string digits = Regex.Replace(text, @"[^\d]", "");
+
+        // TextChanged hodisasining qayta-qayta chaqirilishini oldini olish
+        textBox.TextChanged -= tbPhone_TextChanged;
+
+        try
+        {
+            // Agar matn bo'sh bo'lsa yoki '+998' bilan boshlanmasa, uni qo'shish
+            if (digits.Length == 0 || !digits.StartsWith("998"))
+            {
+                digits = "998" + digits;
+            }
+
+            string formatted = "+998 ";
+            if (digits.Length > 3)
+            {
+                formatted += digits.Substring(3, Math.Min(2, digits.Length - 3));
+            }
+            if (digits.Length > 5)
+            {
+                formatted += " " + digits.Substring(5, Math.Min(3, digits.Length - 5));
+            }
+            if (digits.Length > 8)
+            {
+                formatted += " " + digits.Substring(8, Math.Min(2, digits.Length - 8));
+            }
+            if (digits.Length > 10)
+            {
+                formatted += " " + digits.Substring(10, Math.Min(2, digits.Length - 10));
+            }
+
+            textBox.Text = formatted.TrimEnd();
+            textBox.SelectionStart = textBox.Text.Length;
+        }
+        finally
+        {
+            // O'zgartirilganidan keyin hodisani qayta yoqish
+            textBox.TextChanged += tbPhone_TextChanged;
+        }
+    }
+    private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            if (sender == tbName)
+                tbLastName.Focus();
+            else if (sender == tbLastName)
+                txtBirthDate.Focus();
+            else if (sender == txtBirthDate)
+                tbAddress.Focus();
+            else if (sender == tbAddress)
+                tbPhone.Focus();
+            else if (sender == tbPhone)
+                btnSave.Focus();
+        }
     }
 }
