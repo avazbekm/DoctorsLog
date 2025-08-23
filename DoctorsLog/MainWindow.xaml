@@ -1,4 +1,4 @@
-﻿<Window x:Class="DoctorsLog.MainWindow"
+<Window x:Class="DoctorsLog.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -105,13 +105,13 @@
                             Width="150" Height="80" Margin="0,0,20,0">
                         <StackPanel>
                             <TextBlock Text="Bemorlar soni" Foreground="#888" FontSize="12"/>
-                            <TextBlock x:Name="PatientsCountText" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
+                            <TextBlock x:Name="tbPatientsCount" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1"
                             Width="150" Height="80">
                         <StackPanel>
-                            <TextBlock Text="Retseptlar soni" Foreground="#888" FontSize="12"/>
+                            <TextBlock x:Name="tbRecipeCount" Text="Retseptlar soni" Foreground="#888" FontSize="12"/>
                             <TextBlock x:Name="PrescriptionsCountText" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
                         </StackPanel>
                     </Border>
@@ -130,23 +130,23 @@
                                       Padding="10 5"
                                       Width="265"
                                       FontSize="16"
-                                      md:HintAssist.Hint="Qidiruv"
+                                      md:HintAssist.Hint="Qidiruv.."
                                       Style="{DynamicResource MaterialDesignTextBox}"
                                       BorderThickness="0"
-                                      Background="Transparent" />
+                                      Background="Transparent" TextChanged="TbSearch_TextChanged" />
                             </Border>
                         </StackPanel>
-                        <WrapPanel Grid.Row="1" HorizontalAlignment="Left" Margin="0 0 0 10">
-                            <Border CornerRadius="8" Background="#FFFFFF" Margin="0 5">
-                                <TextBox x:Name="tbName"
-                 Padding="10 5"
-                 MinWidth="110"
-                 FontSize="16"
-                 md:HintAssist.Hint="Ismi"
-                 Style="{DynamicResource MaterialDesignTextBox}"
-                 BorderThickness="0"
-                 Background="Transparent"
-                 KeyDown="TextBox_KeyDown"/>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 0 0 10">
+                            <Border CornerRadius="8" Background="#FFFFFF">
+                                <TextBox x:Name="tbFirstName"
+                                         Padding="10 5"
+                                         MinWidth="110"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="Ismi"
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         KeyDown="TextBox_KeyDown"/>
                             </Border>
 
                             <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
@@ -204,6 +204,8 @@
                  TextChanged="TbPhone_TextChanged"
                  KeyDown="TextBox_KeyDown"/>
                             </Border>
+                            <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 0" BorderThickness='0' Click="BtnSave_Click"/>
+                        </StackPanel>
 
                             <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 5" BorderThickness='0'/>
                         </WrapPanel>
@@ -214,7 +216,16 @@
                                       RowBackground="#F9F9F9"
                                       AlternatingRowBackground="#F0F0F0" SelectionChanged="PatientsDataGrid_SelectionChanged">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="T/r" Binding="{Binding TartibNomer}" Width="50"/>
+                                    <DataGridTemplateColumn Header="T/r" Width="50">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Loaded="IndexBlock_Loaded"
+                                                       HorizontalAlignment="Center"
+                                                       FontWeight="Bold"/>          
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
                                     <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
                                     <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
                                     <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>

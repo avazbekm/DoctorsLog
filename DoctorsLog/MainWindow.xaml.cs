@@ -1,3 +1,7 @@
+using DoctorsLog.Entities;
+using DoctorsLog.Services;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using System.Windows;
 using DoctorsLog.Pages;
 using DoctorsLog.Services;
@@ -97,6 +101,9 @@ public partial class MainWindow : Window
 
     private void ShowInfoCards()
     {
+        tbPatientsCount.Text = db.Patients.ToList().Count.ToString();
+        tbRecipeCount.Text = db.Recipes.Count().ToString();
+
         // Info kartalar panelini ko'rsatamiz va MainContentControl'ni tozalaymiz
         InfoCardsPanel.Visibility = Visibility.Visible;
         MainContentControl.Content = null;
@@ -120,6 +127,11 @@ public partial class MainWindow : Window
     {
         // Info kartalar panelini yashiramiz
         InfoCardsPanel.Visibility = Visibility.Collapsed;
+        // Retseptlar view'i yaratilmagan bo'lsa, uni yaratamiz
+        prescriptionsView ??= CreatePrescriptionsView();
+        // MainContentControl'ga retseptlar view'ini yuklaymiz
+        MainContentControl.Content = prescriptionsView;
+    }
 
         // Create a Frame to host the RetseptPage
         var frame = new Frame();
@@ -218,13 +230,12 @@ public partial class MainWindow : Window
             textBox.TextChanged += TbPhone_TextChanged;
         }
     }
-
-    private void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    private void TextBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
         {
             e.Handled = true;
-            if (sender == tbName)
+            if (sender == tbFirstName)
                 tbLastName.Focus();
             else if (sender == tbLastName)
                 txtBirthDate.Focus();
@@ -237,8 +248,86 @@ public partial class MainWindow : Window
         }
     }
 
-    private void PatientsView_Loaded(object sender, RoutedEventArgs e)
+    private async void BtnSave_Click(object sender, RoutedEventArgs e)
     {
-        tbSearch.Focus();
+        var patient = new Entities.Patient
+        {
+            FirstName = tbFirstName.Text.Trim(),
+            LastName = tbLastName.Text.Trim(),
+            Address = tbAddress.Text.Trim(),
+            PhoneNumber = tbPhone.Text.Trim(),
+            DateOfBirth = DateOnly.ParseExact(txtBirthDate.Text.Trim(), "dd.MM.yyyy"),
+            CreatedAt = DateTimeOffset.Now
+        };
+
+        db.Patients.Add(patient);
+        var isSaved = await db.SaveAsync() > 0;
+        if (isSaved)
+        {
+            MessageBox.Show("Bemor muvaffaqiyatli qo'shildi!", "Muvaffaqiyat", MessageBoxButton.OK, MessageBoxImage.Information);
+            tbFirstName.Clear();
+            tbLastName.Clear();
+            txtBirthDate.Clear();
+            tbAddress.Clear();
+            tbPhone.Clear();
+            tbFirstName.Focus();
+            PatientsDataGrid.ItemsSource = db.Patients.ToList();
+        }
+        else
+        {
+            MessageBox.Show("Bemorni qo'shishda xatolik yuz berdi.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
     }
+
+    private async void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        string query = tbSearch.Text.Trim();
+        var filtered = await SearchPatientsAsync(query);
+        PatientsDataGrid.ItemsSource = filtered;
+    }
+
+    private async Task<List<Patient>> SearchPatientsAsync(string query)
+    {
+        var loweredQuery = query.ToLower();
+
+        if (string.IsNullOrEmpty(loweredQuery))
+            return await db.Patients.ToListAsync();
+
+        return await db.Patients
+            .Where(p => 
+                p.FirstName.ToLower().Contains(loweredQuery) ||
+                p.PhoneNumber.ToLower().Contains(loweredQuery) ||
+                p.LastName.ToLower().Contains(loweredQuery) ||
+                p.Address.ToLower().Contains(loweredQuery) ||
+                p.DateOfBirth.ToString().Contains(loweredQuery)
+            ).ToListAsync();
+    }
+
+
+    #region Index Column (Qator tartib raqamini aniqlash)
+    private void IndexBlock_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBlock tb)
+        {
+            var row = FindParent<DataGridRow>(tb);
+
+            if (ItemsControl.ItemsControlFromItemContainer(row) is DataGrid dataGrid)
+            {
+                int index = dataGrid.ItemContainerGenerator.IndexFromContainer(row);
+                tb.Text = (index + 1).ToString(); // 1-based index
+            }
+        }
+    }
+
+
+    private static T FindParent<T>(DependencyObject child) where T : DependencyObject
+    {
+        DependencyObject parent = VisualTreeHelper.GetParent(child);
+        while (parent != null && parent is not T)
+            parent = VisualTreeHelper.GetParent(parent);
+
+        return parent as T;
+    }
+    #endregion
 }
