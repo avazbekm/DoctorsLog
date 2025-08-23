@@ -138,11 +138,11 @@
                                       AlternatingRowBackground="#F0F0F0">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="T/r" Binding="{Binding TartibNomer}" Width="50"/>
-                                    <DataGridTextColumn Header="Ismi" Binding="{Binding Ismi}" Width="*"/>
-                                    <DataGridTextColumn Header="Familiyasi" Binding="{Binding Familiyasi}" Width="*"/>
-                                    <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding TugilganYili}" Width="*"/>
-                                    <DataGridTextColumn Header="Manzili" Binding="{Binding Manzili}" Width="*"/>
-                                    <DataGridTextColumn Header="Telefoni" Binding="{Binding Telefoni}" Width="*"/>
+                                    <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
+                                    <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
+                                    <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>
+                                    <DataGridTextColumn Header="Manzili" Binding="{Binding Address}" Width="*"/>
+                                    <DataGridTextColumn Header="Telefoni" Binding="{Binding PhoneNumber}" Width="*"/>
                                     <DataGridTemplateColumn Header="Amallar" Width="Auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
