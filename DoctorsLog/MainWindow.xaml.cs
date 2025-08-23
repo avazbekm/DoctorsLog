@@ -3,8 +3,9 @@ using DoctorsLog.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace DoctorsLog;
 
@@ -30,27 +31,59 @@ public partial class MainWindow : Window
         ShowInfoCards();
     }
 
+    #region Side Navigation Animation
     private void CollapseExpandButton_Click(object sender, RoutedEventArgs e)
     {
-        if (SideNavColumn.Width.Value == 50)
-        {
-            SideNavColumn.Width = new GridLength(200);
-            PatientsText.Visibility = Visibility.Visible;
-            PrescriptionText.Visibility = Visibility.Visible;
-            SettingsText.Visibility = Visibility.Visible;
-            var scaleTransform = new ScaleTransform(-1, 1);
-            ArrowIcon.RenderTransform = scaleTransform;
-        }
-        else
-        {
-            SideNavColumn.Width = new GridLength(50);
-            PatientsText.Visibility = Visibility.Collapsed;
-            PrescriptionText.Visibility = Visibility.Collapsed;
-            SettingsText.Visibility = Visibility.Collapsed;
-            var scaleTransform = new ScaleTransform(1, 1);
-            ArrowIcon.RenderTransform = scaleTransform;
-        }
+        double from = SideNavPanel.Width;
+        double to = from == 50 ? 200 : 50;
+
+        AnimateSideNavWidth(from, to);
+        ToggleTextVisibility(to);
+        AnimateArrowRotation(to);
     }
+
+    private void AnimateSideNavWidth(double from, double to)
+    {
+        var widthAnimation = new DoubleAnimation
+        {
+            From = from,
+            To = to,
+            Duration = TimeSpan.FromMilliseconds(300),
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+        };
+
+        SideNavPanel.BeginAnimation(FrameworkElement.WidthProperty, widthAnimation);
+    }
+
+    private void ToggleTextVisibility(double to)
+    {
+        var visibility = to == 200 ? Visibility.Visible : Visibility.Collapsed;
+
+        PatientsText.Visibility = visibility;
+        PrescriptionText.Visibility = visibility;
+        SettingsText.Visibility = visibility;
+    }
+
+    private void AnimateArrowRotation(double to)
+    {
+        var scale = to == 200 ? -1 : 1;
+
+        var rotateAnimation = new DoubleAnimation
+        {
+            To = scale,
+            Duration = TimeSpan.FromMilliseconds(300),
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+        };
+
+        if (ArrowIcon.RenderTransform is not ScaleTransform transform)
+        {
+            transform = new ScaleTransform(1, 1);
+            ArrowIcon.RenderTransform = transform;
+        }
+
+        transform.BeginAnimation(ScaleTransform.ScaleXProperty, rotateAnimation);
+    }
+    #endregion
 
     private void PatientsButton_Click(object sender, RoutedEventArgs e)
     {

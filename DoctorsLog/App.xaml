@@ -18,6 +18,9 @@
                 <!-- Ranglar -->
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
 
+                <!-- Ikonalar -->
+                <ResourceDictionary Source="Resources/Icons.xaml"/>
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
