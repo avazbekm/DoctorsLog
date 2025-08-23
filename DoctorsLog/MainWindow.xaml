@@ -105,13 +105,13 @@
                             Width="150" Height="80" Margin="0,0,20,0">
                         <StackPanel>
                             <TextBlock Text="Bemorlar soni" Foreground="#888" FontSize="12"/>
-                            <TextBlock x:Name="PatientsCountText" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
+                            <TextBlock x:Name="tbPatientsCount" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
                         </StackPanel>
                     </Border>
                     <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1"
                             Width="150" Height="80">
                         <StackPanel>
-                            <TextBlock Text="Retseptlar soni" Foreground="#888" FontSize="12"/>
+                            <TextBlock x:Name="tbRecipeCount" Text="Retseptlar soni" Foreground="#888" FontSize="12"/>
                             <TextBlock x:Name="PrescriptionsCountText" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
                         </StackPanel>
                     </Border>
@@ -131,15 +131,15 @@
                                       Padding="10 5"
                                       Width="265"
                                       FontSize="16"
-                                      md:HintAssist.Hint="Qidiruv"
+                                      md:HintAssist.Hint="Qidiruv.."
                                       Style="{DynamicResource MaterialDesignTextBox}"
                                       BorderThickness="0"
-                                      Background="Transparent" />
+                                      Background="Transparent" TextChanged="TbSearch_TextChanged" />
                             </Border>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 0 0 10">
                             <Border CornerRadius="8" Background="#FFFFFF">
-                                <TextBox x:Name="tbName"
+                                <TextBox x:Name="tbFirstName"
                                          Padding="10 5"
                                          MinWidth="110"
                                          FontSize="16"
@@ -203,7 +203,7 @@
                                          TextChanged="TbPhone_TextChanged" 
                                          KeyDown="TextBox_KeyDown"/>
                             </Border>
-                            <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 0" BorderThickness='0'/>
+                            <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 0" BorderThickness='0' Click="BtnSave_Click"/>
                         </StackPanel>
 
                         <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1">
@@ -213,7 +213,16 @@
                                       RowBackground="#F9F9F9"
                                       AlternatingRowBackground="#F0F0F0" SelectionChanged="PatientsDataGrid_SelectionChanged_1">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="T/r" Binding="{Binding TartibNomer}" Width="50"/>
+                                    <DataGridTemplateColumn Header="T/r" Width="50">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Loaded="IndexBlock_Loaded"
+                                                       HorizontalAlignment="Center"
+                                                       FontWeight="Bold"/>          
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
                                     <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
                                     <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
                                     <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>
