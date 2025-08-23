@@ -1,14 +1,10 @@
-﻿using System.Configuration;
-using System.Data;
+﻿namespace DoctorsLog;
+
 using System.Windows;
 
-namespace DoctorsLog
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
-    }
-
 }
