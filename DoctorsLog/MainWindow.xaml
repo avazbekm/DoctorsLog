@@ -116,7 +116,6 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-
                 <ContentControl Grid.Row="1" x:Name="MainContentControl">
                     <Grid x:Name="PatientsView" Loaded="PatientsView_Loaded">
                         <Grid.RowDefinitions>
@@ -213,7 +212,7 @@
                                       IsReadOnly="True" HeadersVisibility="Column"
                                       GridLinesVisibility="Horizontal"
                                       RowBackground="#F9F9F9"
-                                      AlternatingRowBackground="#F0F0F0" SelectionChanged="PatientsDataGrid_SelectionChanged_1">
+                                      AlternatingRowBackground="#F0F0F0" SelectionChanged="PatientsDataGrid_SelectionChanged">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="T/r" Binding="{Binding TartibNomer}" Width="50"/>
                                     <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
