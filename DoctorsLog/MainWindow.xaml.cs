@@ -176,9 +176,4 @@ public partial class MainWindow : Window
 
         return grid;
     }
-
-    private void PatientsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-
-    }
 }
