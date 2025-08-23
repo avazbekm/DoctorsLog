@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DoctorsLog"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="DoctorsLog" Height="600" Width="1000">
+        Title="Doctor's Log" Height="600" Width="1000">
 
     <Grid Background="#F0F4F8">
         <Grid.RowDefinitions>
@@ -14,7 +14,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#537D5D" />
+        <Border Grid.Row="0" Background="#8BA8C8" />
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -22,7 +22,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Background="Snow">
+            <Border Grid.Column="0" Background="#E6EEF4">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40"/>
@@ -44,7 +44,7 @@
                     <StackPanel Grid.Row="1" Margin="0,0,0,0">
                         <Button x:Name="PatientsButton"
                                 Click="PatientsButton_Click"
-                                Background="Gray" BorderThickness="0"
+                                Background="#D4DBE1" BorderThickness="0"
                                 HorizontalAlignment="Stretch" Margin="5 15" Padding="0">
                             <StackPanel Orientation="Horizontal">
                                 <Path Fill="#334257" Width="20" Height="25"
@@ -61,7 +61,7 @@
 
                         <Button x:Name="PrescriptionButton"
                                 Click="PrescriptionButton_Click"
-                                Background="Gray" BorderThickness="0"
+                                Background="#D4DBE1" BorderThickness="0"
                                 HorizontalAlignment="Stretch" Margin="5 0" Padding="0">
                             <StackPanel Orientation="Horizontal">
                                 <Path Fill="#334257" Width="20" Height="25"
@@ -76,7 +76,7 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Background="Gray" BorderThickness="0"
+                        <Button Background="#D4DBE1" BorderThickness="0"
                                 HorizontalAlignment="Stretch" Margin="5 15 5 0" Padding="0">
                             <StackPanel Orientation="Horizontal">
                                 <Path Fill="#334257" Width="20" Height="25"
@@ -101,14 +101,14 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel x:Name="InfoCardsPanel" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#E0E0E0" BorderThickness="1"
+                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1"
                             Width="150" Height="80" Margin="0,0,20,0">
                         <StackPanel>
                             <TextBlock Text="Bemorlar soni" Foreground="#888" FontSize="12"/>
                             <TextBlock x:Name="PatientsCountText" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
                         </StackPanel>
                     </Border>
-                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#E0E0E0" BorderThickness="1"
+                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1"
                             Width="150" Height="80">
                         <StackPanel>
                             <TextBlock Text="Retseptlar soni" Foreground="#888" FontSize="12"/>
@@ -125,12 +125,12 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,10">
-                            <TextBox Width="200" Margin="0,0,10,0" VerticalAlignment="Center" 
-                                     Style="{StaticResource  MaterialDesignFloatingHintTextBox}"/>
-                            <Button Content="Qo'shish" Style="{StaticResource MaterialDesignFlatLightButton}" Background="#4CAF50"/>
+                            <TextBox Width="200" Margin="0,0,10,0" VerticalAlignment="Center"
+                                      />
+                            <Button Content="Qo'shish" Background="#D4D8DB" BorderThickness='0'/>
                         </StackPanel>
 
-                        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="15" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1">
                             <DataGrid x:Name="PatientsDataGrid" AutoGenerateColumns="False"
                                       IsReadOnly="True" HeadersVisibility="Column"
                                       GridLinesVisibility="Horizontal"
@@ -147,8 +147,8 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Content="O'zgartirish" Style="{StaticResource MaterialDesignFlatLightButton}" Background="#4CAF50" Margin="0,0,5,0"/>
-                                                    <Button Content="O'chirish" Style="{StaticResource MaterialDesignFlatLightButton}" Background="#F44336"/>
+                                                    <Button Content="O'zgartirish" Background="#6A9B9B" Margin="0,0,5,0"/>
+                                                    <Button Content="O'chirish" Background="#F44336"/>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
@@ -181,7 +181,7 @@
         <Style x:Key="SearchBoxStyle" TargetType="TextBox">
             <Setter Property="Padding" Value="5"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderBrush" Value="#D3DDE6"/>
             <Setter Property="Background" Value="#F9F9F9"/>
         </Style>
     </Window.Resources>

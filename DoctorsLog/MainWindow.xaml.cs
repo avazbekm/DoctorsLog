@@ -1,8 +1,10 @@
-﻿using DoctorsLog.Services;
+
+using DoctorsLog.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Controls;
 
 namespace DoctorsLog;
 
