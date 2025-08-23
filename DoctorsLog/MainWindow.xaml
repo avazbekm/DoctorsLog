@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:DoctorsLog"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
@@ -161,21 +162,97 @@ S14,9.753,14,11.314z
                     <Grid x:Name="PatientsView">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,10">
-                            <TextBox Width="200" Margin="0,0,10,0" VerticalAlignment="Center"
-                                      />
-                            <Button Content="Qo'shish" Background="#D4D8DB" BorderThickness='0'/>
+                            <Border CornerRadius="8" Background="#FFFFFF">
+                                <TextBox x:Name="tbSearch"
+                                      Padding="10 5"
+                                      Width="265"
+                                      FontSize="16"
+                                      md:HintAssist.Hint="Qidiruv"
+                                      Style="{DynamicResource MaterialDesignTextBox}"
+                                      BorderThickness="0"
+                                      Background="Transparent" />
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 0 0 10">
+                            <Border CornerRadius="8" Background="#FFFFFF">
+                                <TextBox x:Name="tbName"
+                                         Padding="10 5"
+                                         MinWidth="110"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="Ismi"
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         KeyDown="TextBox_KeyDown"/>
+                            </Border>
+                            <Border CornerRadius="8" Background="#FFFFFF" Margin="5 0">
+                                <TextBox x:Name="tbLastName"
+                                         Padding="10 5"
+                                         MinWidth="110"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="Familiya"
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent" 
+                                         KeyDown="TextBox_KeyDown"/>
+                            </Border>
+                            <!-- Tug‘ilgan sana -->
+                            <StackPanel Orientation="Horizontal" Margin="0" Background="#F0F4F8">
+                                <TextBlock Text="Tug‘ilgan sana" FontSize="16" Width="110" VerticalAlignment="Center"/>
+                                <Border CornerRadius="7" Margin="5 0" Background="#FFFFFF">
+                                    <Grid >
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="txtBirthDate" Padding="5 0" BorderThickness="0" Background="#FFFFFF" Width="100" Height="30" FontSize="15" Style="{StaticResource MaterialDesignOutlinedTextBox}" VerticalContentAlignment="Center" PreviewTextInput="DateTextBox_PreviewTextInput" KeyDown="TextBox_KeyDown" TextChanged="DateTextBox_TextChanged"/>
+                                        <Button Grid.Column="1" Content="📆" Width="20" Height="20" Padding="0" BorderThickness="0" Margin="3,0,7,0" Background="#E6EEF4" Click="btnBirthCalendar_Click"/>
+                                        <Popup x:Name="popupBirthDate" PlacementTarget="{Binding ElementName=txtBirthDate}" StaysOpen="False">
+                                            <Border Background="White" BorderBrush="Gray" BorderThickness="1">
+                                                <Calendar x:Name="calendarBirthDate" SelectedDatesChanged="calendarBirthDate_SelectedDatesChanged"/>
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+
+                            <Border CornerRadius="8" Background="#FFFFFF" Margin="5 0">
+                                <TextBox x:Name="tbAddress"
+                                         Padding="10 5"
+                                         MinWidth="150"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="Manzil"
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent" 
+                                         KeyDown="TextBox_KeyDown"/>
+                            </Border>
+                            <Border CornerRadius="8" Background="#FFFFFF" Margin="5 0">
+                                <TextBox x:Name="tbPhone"
+                                         Padding="10 5"
+                                         MinWidth="155"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="+998 "
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent" 
+                                         TextChanged="tbPhone_TextChanged" 
+                                         KeyDown="TextBox_KeyDown"/>
+                            </Border>
+                            <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 0" BorderThickness='0'/>
                         </StackPanel>
 
-                        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1">
-                            <DataGrid x:Name="PatientsDataGrid" AutoGenerateColumns="False"
+                        <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1">
+                            <DataGrid x:Name="PatientsDataGrid"  AutoGenerateColumns="False"
                                       IsReadOnly="True" HeadersVisibility="Column"
                                       GridLinesVisibility="Horizontal"
                                       RowBackground="#F9F9F9"
-                                      AlternatingRowBackground="#F0F0F0">
+                                      AlternatingRowBackground="#F0F0F0" SelectionChanged="PatientsDataGrid_SelectionChanged_1">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="T/r" Binding="{Binding TartibNomer}" Width="50"/>
                                     <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
