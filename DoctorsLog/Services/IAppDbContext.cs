@@ -9,5 +9,5 @@ public interface IAppDbContext
     DbSet<Recipe> Recipes { get; }
     DbSet<RecipeItem> RecipeItems { get; }
 
-    Task<int> SaveAsync(CancellationToken cancellationToken);
+    Task<int> SaveAsync(CancellationToken cancellationToken = default);
 }
