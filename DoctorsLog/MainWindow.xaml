@@ -169,7 +169,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBox x:Name="txtBirthDate" Padding="5 0" BorderThickness="0" Background="#FFFFFF" Width="100" Height="30" FontSize="15" Style="{StaticResource MaterialDesignOutlinedTextBox}" VerticalContentAlignment="Center" PreviewTextInput="DateTextBox_PreviewTextInput" KeyDown="TextBox_KeyDown" TextChanged="DateTextBox_TextChanged"/>
+                                        <TextBox x:Name="txtBirthDate" Padding="5 0" BorderThickness="0" Background="#FFFFFF" Width="90" Height="30" FontSize="15" Style="{StaticResource MaterialDesignOutlinedTextBox}" VerticalContentAlignment="Center" PreviewTextInput="DateTextBox_PreviewTextInput" KeyDown="TextBox_KeyDown" TextChanged="DateTextBox_TextChanged"/>
                                         <Button Grid.Column="1" Content="📆" Width="20" Height="20" Padding="0" BorderThickness="0" Margin="3,0,7,0" Background="#E6EEF4" Click="BtnBirthCalendar_Click"/>
                                         <Popup x:Name="popupBirthDate" PlacementTarget="{Binding ElementName=txtBirthDate}" StaysOpen="False">
                                             <Border Background="White" BorderBrush="Gray" BorderThickness="1">
