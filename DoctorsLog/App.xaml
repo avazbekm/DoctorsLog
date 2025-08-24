@@ -6,6 +6,7 @@
     <Application.Resources>
         <!-- Material Design style va ranglar -->
         <ResourceDictionary>
+            <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <ResourceDictionary.MergedDictionaries>
 
                 <!-- Tema (light yoki dark tanlang) -->

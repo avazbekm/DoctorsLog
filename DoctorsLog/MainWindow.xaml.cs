@@ -1,10 +1,12 @@
 ﻿using DoctorsLog.Entities;
-using DoctorsLog.Models;
+using DoctorsLog.Pages;
 using DoctorsLog.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -27,11 +29,8 @@ public partial class MainWindow : Window
 
         db = new AppDbContext();
 
-        // 'MainContentControl' ichini boshqa elementlar bilan almashtirish uchun uni tozalaymiz
-        MainContentControl.Content = null;
-
-        // Ilova ishga tushganda faqat kartochkalar ko'rinishi uchun
-        ShowInfoCards();
+        MainContentControl.DataContext = db;
+        MainContentControl.Content = new Dashboard(db);
     }
 
     #region Side Navigation Animation
@@ -64,7 +63,7 @@ public partial class MainWindow : Window
 
         PatientsText.Visibility = visibility;
         PrescriptionText.Visibility = visibility;
-        SettingsText.Visibility = visibility;
+        DashboardText.Visibility = visibility;
     }
 
     private void AnimateArrowRotation(double to)
@@ -98,34 +97,18 @@ public partial class MainWindow : Window
         ShowPrescriptionsView();
     }
 
-    private void ShowInfoCards()
-    {
-        tbPatientsCount.Text = db.Patients.ToList().Count.ToString();
-        tbRecipeCount.Text = db.Recipes.Count().ToString();
-
-        // Info kartalar panelini ko'rsatamiz va MainContentControl'ni tozalaymiz
-        InfoCardsPanel.Visibility = Visibility.Visible;
-        MainContentControl.Content = null;
-    }
-
     private async void ShowPatientsView()
     {
-        // Info kartalar panelini yashiramiz
-        InfoCardsPanel.Visibility = Visibility.Collapsed;
-
         // MainContentControl'ga bemorlar view'ini yuklaymiz
         MainContentControl.Content = patientsView;
 
         // Bemorlar ro'yxatini yangilash
         var patients = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
-        PatientsDataGrid.ItemsSource = MapPatients(patients);
-        PatientsDataGrid.SelectedIndex = 0;
+        PatientsDataGrid.ItemsSource = patients;
     }
 
     private void ShowPrescriptionsView()
     {
-        // Info kartalar panelini yashiramiz
-        InfoCardsPanel.Visibility = Visibility.Collapsed;
         // Retseptlar view'i yaratilmagan bo'lsa, uni yaratamiz
         prescriptionsView ??= CreatePrescriptionsView();
         // MainContentControl'ga retseptlar view'ini yuklaymiz
@@ -400,23 +383,41 @@ public partial class MainWindow : Window
 
     private void BtnEditPatientInfo_Click(object sender, RoutedEventArgs e)
     {
+        // 2. Faqat tanlangan qatorni tahrirlashga o‘tkazamiz
+        if (sender is Button btn && btn.DataContext is Patient selectedPatient)
+        {
+            selectedPatient.IsEditing = true;
+        }
 
+        // 3. UI yangilansin
+        PatientsDataGrid.Items.Refresh();
     }
 
-    private static List<PatientModel> MapPatients(List<Patient> entities)
-        => [.. entities.Select(p => new PatientModel
-        {
-            Id = p.Id,
-            FullName = $"{p.FirstName} {p.LastName}",
-            FirstName = p.FirstName,
-            LastName = p.LastName,
-            CreatedAt = p.CreatedAt,
-            DateOfBirth = p.DateOfBirth.ToString("dd.MM.yyyy"),
-            PhoneNumber = p.PhoneNumber,
-            Address = p.Address,
-            IsEditing = false
-        })];
 
+    private void BtnConfirmEdit_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.DataContext is Patient patient)
+        {
+            patient.IsEditing = false;
+            // Bu yerda ma'lumotni saqlash logikasini qo‘shishing mumkin
+        }
+        PatientsDataGrid.Items.Refresh();
+    }
+
+    private void BtnCancelEdit_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.DataContext is Patient patient)
+        {
+            patient.IsEditing = false;
+            // Istasang eski qiymatga qaytarish logikasini qo‘shishing mumkin
+        }
+        PatientsDataGrid.Items.Refresh();
+    }
+
+    private void DashboardButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainContentControl.Content = new Dashboard(db);
+    }
 }
 
 public static class InputFormatter
@@ -523,5 +524,19 @@ public static class InputFormatter
         if (!string.IsNullOrEmpty(year)) parts.Add(year);
 
         return string.Join(".", parts);
+    }
+}
+public class BoolToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        bool invert = parameter?.ToString() == "False";
+        bool flag = value is bool b && b;
+        return (flag ^ invert) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return (value is Visibility v) && v == Visibility.Visible;
     }
 }

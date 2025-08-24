@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:DoctorsLog"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="Doctor's Log" Height="600" Width="1020">
+        Title="Doctor's Log" Height="600" Width="1030">
 
     <Grid Background="#F0F4F8">
         <Grid.RowDefinitions>
@@ -21,7 +21,6 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <!-- o'zgartirildi -->
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -50,7 +49,25 @@
                     </Button>
 
                     <!-- Navigatsiya tugmalari -->
+
                     <StackPanel Grid.Row="1" Margin="0,0,0,0">
+                        <Button x:Name="btnDashboart" 
+                                Click="DashboardButton_Click" 
+                                Background="#D4DBE1"            
+                                BorderThickness="0"
+                            HorizontalAlignment="Stretch" 
+                                Margin="5 15 5 0" Padding="0">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Fill="#334257" Width="25" Height="25" Data="{StaticResource DashboardIcon}" />
+                                <TextBlock x:Name="DashboardText" Text="Dashboard"
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Foreground="#334257"
+                                   VerticalAlignment="Center"
+                                   Margin="15,0,0,0"
+                                   Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Button>
+                        
                         <Button x:Name="PatientsButton" Click="PatientsButton_Click"
                         Background="#D4DBE1" BorderThickness="0"
                         HorizontalAlignment="Stretch" Margin="5 15" Padding="0">
@@ -78,45 +95,12 @@
                                    Visibility="Collapsed"/>
                             </StackPanel>
                         </Button>
-
-                        <Button Background="#D4DBE1" BorderThickness="0"
-                        HorizontalAlignment="Stretch" Margin="5 15 5 0" Padding="0">
-                            <StackPanel Orientation="Horizontal">
-                                <Path Fill="#334257" Width="25" Height="25" Data="{StaticResource SettingsIcon}" />
-                                <TextBlock x:Name="SettingsText" Text="Sozlash"
-                                   FontSize="16" FontWeight="SemiBold"
-                                   Foreground="#334257"
-                                   VerticalAlignment="Center"
-                                   Margin="15,0,0,0"
-                                   Visibility="Collapsed"/>
-                            </StackPanel>
-                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <Grid Grid.Column="1" Margin="20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel x:Name="InfoCardsPanel" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1"
-                            Width="150" Height="80" Margin="0,0,20,0">
-                        <StackPanel>
-                            <TextBlock Text="Bemorlar soni" Foreground="#888" FontSize="12"/>
-                            <TextBlock x:Name="tbPatientsCount" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1"
-                            Width="150" Height="80">
-                        <StackPanel>
-                            <TextBlock Text="Retseptlar soni" Foreground="#888" FontSize="12"/>
-                            <TextBlock x:Name="tbRecipeCount" Text="0" Foreground="#334257" FontWeight="Bold" FontSize="18"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                
                 <ContentControl Grid.Row="1" x:Name="MainContentControl">
                     <Grid x:Name="PatientsView" Loaded="PatientsView_Loaded">
                         <Grid.RowDefinitions>
@@ -163,17 +147,17 @@
                             </Border>
 
                             <StackPanel Orientation="Horizontal" Margin="5 5" Background="#F0F4F8">
-                                <Border CornerRadius="7" Margin="5 0" Background="#FFFFFF">
+                                <Border CornerRadius="8" Background="#FFFFFF">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBox x:Name="txtBirthDate"
-                                                 Padding="5 0"
+                                                 Padding="10 0"
                                                  BorderThickness="0"
                                                  Background="#FFFFFF"
-                                                 Width="105"
+                                                 Width="110"
                                                  Height="30"
                                                  FontSize="15"
                                                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
@@ -190,7 +174,7 @@
                                                 Height="20"
                                                 Padding="0"
                                                 BorderThickness="0"
-                                                Margin="3,0,7,0"
+                                                Margin="1,0,7,0"
                                                 Background="#E6EEF4"
                                                 Click="BtnBirthCalendar_Click"/>
 
@@ -206,7 +190,7 @@
                                 </Border>
                             </StackPanel>
 
-                            <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
+                            <Border CornerRadius="8" Background="#FFFFFF" Margin="1 5">
                                 <TextBox x:Name="tbAddress"
                                          Padding="10 5"
                                          MinWidth="150"
@@ -220,8 +204,8 @@
 
                             <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
                                 <TextBox x:Name="tbPhone"
-                                         Padding="10 5"
-                                         MinWidth="155"
+                                         Padding="5 5"
+                                         MinWidth="145"
                                          FontSize="16"
                                          md:HintAssist.Hint="+998 "
                                          Style="{DynamicResource MaterialDesignTextBox}"
@@ -255,7 +239,8 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Ish sharifi" Binding="{Binding FullName}" Width="*"/>
+                                    <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
+                                    <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
                                     <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>
                                     <DataGridTextColumn Header="Manzili" Binding="{Binding Address}" Width="*"/>
                                     <DataGridTextColumn Header="Telefoni" Binding="{Binding PhoneNumber}" Width="*"/>
