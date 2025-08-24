@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:DoctorsLog"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
@@ -162,18 +163,43 @@
                             </Border>
 
                             <StackPanel Orientation="Horizontal" Margin="5 5" Background="#F0F4F8">
-                                <TextBlock Text="Tug‘ilgan sana" FontSize="16" Width="110" VerticalAlignment="Center"/>
                                 <Border CornerRadius="7" Margin="5 0" Background="#FFFFFF">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBox x:Name="txtBirthDate" Padding="5 0" BorderThickness="0" Background="#FFFFFF" Width="100" Height="30" FontSize="15" Style="{StaticResource MaterialDesignOutlinedTextBox}" VerticalContentAlignment="Center" PreviewTextInput="DateTextBox_PreviewTextInput" KeyDown="TextBox_KeyDown" TextChanged="DateTextBox_TextChanged"/>
-                                        <Button Grid.Column="1" Content="📆" Width="20" Height="20" Padding="0" BorderThickness="0" Margin="3,0,7,0" Background="#E6EEF4" Click="BtnBirthCalendar_Click"/>
-                                        <Popup x:Name="popupBirthDate" PlacementTarget="{Binding ElementName=txtBirthDate}" StaysOpen="False">
+                                        <TextBox x:Name="txtBirthDate"
+                                                 Padding="5 0"
+                                                 BorderThickness="0"
+                                                 Background="#FFFFFF"
+                                                 Width="105"
+                                                 Height="30"
+                                                 FontSize="15"
+                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                                 VerticalContentAlignment="Center"
+                                                 PreviewTextInput="DateTextBox_PreviewTextInput"
+                                                 KeyDown="TextBox_KeyDown"
+                                                 TextChanged="DateTextBox_TextChanged"
+                                                 materialDesign:HintAssist.Hint="Tug‘ilgan sana"
+                                                 materialDesign:HintAssist.Foreground="Gray"/>
+
+                                        <Button Grid.Column="1"
+                                                Content="📆"
+                                                Width="20"
+                                                Height="20"
+                                                Padding="0"
+                                                BorderThickness="0"
+                                                Margin="3,0,7,0"
+                                                Background="#E6EEF4"
+                                                Click="BtnBirthCalendar_Click"/>
+
+                                        <Popup x:Name="popupBirthDate"
+                                               PlacementTarget="{Binding ElementName=txtBirthDate}"
+                                               StaysOpen="False">
                                             <Border Background="White" BorderBrush="Gray" BorderThickness="1">
-                                                <Calendar x:Name="calendarBirthDate" SelectedDatesChanged="CalendarBirthDate_SelectedDatesChanged"/>
+                                                <Calendar x:Name="calendarBirthDate"
+                                                        SelectedDatesChanged="CalendarBirthDate_SelectedDatesChanged"/>
                                             </Border>
                                         </Popup>
                                     </Grid>
@@ -182,14 +208,14 @@
 
                             <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
                                 <TextBox x:Name="tbAddress"
-                 Padding="10 5"
-                 MinWidth="150"
-                 FontSize="16"
-                 md:HintAssist.Hint="Manzil"
-                 Style="{DynamicResource MaterialDesignTextBox}"
-                 BorderThickness="0"
-                 Background="Transparent"
-                 KeyDown="TextBox_KeyDown"/>
+                                         Padding="10 5"
+                                         MinWidth="150"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="Manzil"
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         KeyDown="TextBox_KeyDown"/>
                             </Border>
 
                             <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
@@ -202,7 +228,8 @@
                                          BorderThickness="0"
                                          Background="Transparent"
                                          TextChanged="TbPhone_TextChanged"
-                                         KeyDown="TextBox_KeyDown"/>
+                                         KeyDown="TextBox_KeyDown"
+                                         PreviewKeyDown="TbPhone_PreviewKeyDown"/>
                             </Border>
 
                             <Button x:Name="btnSave" Content="Saqlash" Background="#D4D8DB" Margin="5 5" Click="BtnSave_Click" BorderThickness='0'/>
@@ -228,8 +255,7 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
-                                    <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
+                                    <DataGridTextColumn Header="Ish sharifi" Binding="{Binding FullName}" Width="*"/>
                                     <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>
                                     <DataGridTextColumn Header="Manzili" Binding="{Binding Address}" Width="*"/>
                                     <DataGridTextColumn Header="Telefoni" Binding="{Binding PhoneNumber}" Width="*"/>
