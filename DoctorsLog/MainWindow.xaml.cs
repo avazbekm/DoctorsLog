@@ -1,4 +1,5 @@
-using DoctorsLog.Entities;
+﻿using DoctorsLog.Entities;
+using DoctorsLog.Models;
 using DoctorsLog.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -54,7 +55,7 @@ public partial class MainWindow : Window
             EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
         };
 
-        SideNavPanel.BeginAnimation(FrameworkElement.WidthProperty, widthAnimation);
+        SideNavPanel.BeginAnimation(WidthProperty, widthAnimation);
     }
 
     private void ToggleTextVisibility(double to)
@@ -117,7 +118,7 @@ public partial class MainWindow : Window
 
         // Bemorlar ro'yxatini yangilash
         var patients = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
-        PatientsDataGrid.ItemsSource = patients;
+        PatientsDataGrid.ItemsSource = MapPatients(patients);
         PatientsDataGrid.SelectedIndex = 0;
     }
 
@@ -181,19 +182,19 @@ public partial class MainWindow : Window
 
         // Xatolik to'g'rilandi: Style'ni chaqirmasdan, tugma xususiyatlari to'g'ridan-to'g'i berildi.
         var editButton = new FrameworkElementFactory(typeof(Button));
-        editButton.SetValue(Button.ContentProperty, "O'zgartirish");
-        editButton.SetValue(Button.BackgroundProperty, new SolidColorBrush(Color.FromRgb(76, 175, 80)));
-        editButton.SetValue(Button.ForegroundProperty, Brushes.White);
-        editButton.SetValue(Button.MarginProperty, new Thickness(0, 0, 5, 0));
-        editButton.SetValue(Button.BorderThicknessProperty, new Thickness(0));
-        editButton.SetValue(Button.PaddingProperty, new Thickness(8, 4, 4, 4));
+        editButton.SetValue(ContentProperty, "O'zgartirish");
+        editButton.SetValue(BackgroundProperty, new SolidColorBrush(Color.FromRgb(76, 175, 80)));
+        editButton.SetValue(ForegroundProperty, Brushes.White);
+        editButton.SetValue(MarginProperty, new Thickness(0, 0, 5, 0));
+        editButton.SetValue(BorderThicknessProperty, new Thickness(0));
+        editButton.SetValue(PaddingProperty, new Thickness(8, 4, 4, 4));
 
         var deleteButton = new FrameworkElementFactory(typeof(Button));
-        deleteButton.SetValue(Button.ContentProperty, "O'chirish");
-        deleteButton.SetValue(Button.BackgroundProperty, new SolidColorBrush(Color.FromRgb(244, 67, 54)));
-        deleteButton.SetValue(Button.ForegroundProperty, Brushes.White);
-        deleteButton.SetValue(Button.BorderThicknessProperty, new Thickness(0));
-        deleteButton.SetValue(Button.PaddingProperty, new Thickness(8, 4, 4, 4));
+        deleteButton.SetValue(ContentProperty, "O'chirish");
+        deleteButton.SetValue(BackgroundProperty, new SolidColorBrush(Color.FromRgb(244, 67, 54)));
+        deleteButton.SetValue(ForegroundProperty, Brushes.White);
+        deleteButton.SetValue(BorderThicknessProperty, new Thickness(0));
+        deleteButton.SetValue(PaddingProperty, new Thickness(8, 4, 4, 4));
 
         stackPanel.AppendChild(editButton);
         stackPanel.AppendChild(deleteButton);
@@ -219,27 +220,12 @@ public partial class MainWindow : Window
 
     private void DateTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
-        var tb = sender as TextBox;
-        string digits = Regex.Replace(tb.Text, @"[^\d]", "");
-        if (digits.Length > 8)
-            digits = digits.Substring(0, 8);
-        string formatted = FormatDate(digits);
+        if (sender is not TextBox tb) return;
+
         tb.TextChanged -= DateTextBox_TextChanged;
-        tb.Text = formatted;
+        tb.Text = InputFormatter.FormatDate(tb.Text);
         tb.CaretIndex = tb.Text.Length;
         tb.TextChanged += DateTextBox_TextChanged;
-    }
-
-    private string FormatDate(string input)
-    {
-        if (input.Length <= 2)
-            return input;
-        else if (input.Length <= 4)
-            return input.Insert(2, ".");
-        else if (input.Length <= 8)
-            return input.Insert(2, ".").Insert(5, ".");
-        else
-            return input;
     }
 
     private void DateTextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
@@ -260,95 +246,76 @@ public partial class MainWindow : Window
         popupBirthDate.IsOpen = false;
     }
 
+    #region Phone TextBox
     private void TbPhone_TextChanged(object sender, TextChangedEventArgs e)
-        => FormatPhoneNumber((sender as TextBox)!);
-
-    private void FormatPhoneNumber(TextBox textBox)
     {
-        if (textBox == null) return;
-        string text = textBox.Text?.Trim() ?? string.Empty;
-        string digits = Regex.Replace(text, @"[^\d]", "");
+        if (sender is not TextBox tb) return;
 
-        textBox.TextChanged -= TbPhone_TextChanged;
+        tb.TextChanged -= TbPhone_TextChanged;
 
-        try
-        {
-            if (digits.Length == 0 || !digits.StartsWith("998"))
-            {
-                digits = "998" + digits;
-            }
+        var (formatted, caret) = InputFormatter.FormatPhoneInput(tb.Text);
+        tb.Text = formatted;
+        tb.CaretIndex = caret;
 
-            string formatted = "+998 ";
-            if (digits.Length > 3)
-            {
-                formatted += digits.Substring(3, Math.Min(2, digits.Length - 3));
-            }
-            if (digits.Length > 5)
-            {
-                formatted += " " + digits.Substring(5, Math.Min(3, digits.Length - 5));
-            }
-            if (digits.Length > 8)
-            {
-                formatted += " " + digits.Substring(8, Math.Min(2, digits.Length - 8));
-            }
-            if (digits.Length > 10)
-            {
-                formatted += " " + digits.Substring(10, Math.Min(2, digits.Length - 10));
-            }
-
-            textBox.Text = formatted.TrimEnd();
-            textBox.SelectionStart = textBox.Text.Length;
-        }
-        finally
-        {
-            textBox.TextChanged += TbPhone_TextChanged;
-        }
+        tb.TextChanged += TbPhone_TextChanged;
     }
-    private void TextBox_KeyDown(object sender, KeyEventArgs e)
+
+    private void TbPhone_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
+        if (sender is not TextBox tb) return;
+
+        // Foydalanuvchi prefiksni o‘chirishga harakat qilsa, bloklaymiz
+        if (tb.CaretIndex <= 5 &&
+            (e.Key == Key.Back || e.Key == Key.Delete || e.Key == Key.Left))
         {
             e.Handled = true;
-            if (sender == tbFirstName)
-                tbLastName.Focus();
-            else if (sender == tbLastName)
-                txtBirthDate.Focus();
-            else if (sender == txtBirthDate)
-                tbAddress.Focus();
-            else if (sender == tbAddress)
-                tbPhone.Focus();
-            else if (sender == tbPhone)
-                btnSave.Focus();
         }
     }
+    #endregion
 
     private async void BtnSave_Click(object sender, RoutedEventArgs e)
     {
+        // 1️⃣ Input validation
+        if (string.IsNullOrWhiteSpace(tbFirstName.Text) ||
+            string.IsNullOrWhiteSpace(tbLastName.Text) ||
+            string.IsNullOrWhiteSpace(tbAddress.Text) ||
+            string.IsNullOrWhiteSpace(tbPhone.Text) ||
+            string.IsNullOrWhiteSpace(txtBirthDate.Text))
+        {
+            MessageBox.Show("Iltimos, barcha maydonlarni to'ldiring.", "Eslatma", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!DateTime.TryParseExact(
+                txtBirthDate.Text.Trim(),
+                "dd.MM.yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out DateTime birthDate))
+        {
+            MessageBox.Show("Tug'ilgan sana noto'g'ri formatda. To'g'ri format: dd.MM.yyyy", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        // 2️⃣ Ma'lumotni saqlash
         var patient = new Patient
         {
             FirstName = tbFirstName.Text.Trim(),
             LastName = tbLastName.Text.Trim(),
             Address = tbAddress.Text.Trim(),
             PhoneNumber = tbPhone.Text.Trim(),
-            DateOfBirth = DateTime.ParseExact(
-                            txtBirthDate.Text.Trim(),
-                            "dd.MM.yyyy",
-                            System.Globalization.CultureInfo.InvariantCulture
-                        ),
-
+            DateOfBirth = birthDate,
             CreatedAt = DateTime.Now
         };
 
         db.Patients.Add(patient);
-        var isSaved = await db.SaveAsync() > 0;
+        bool isSaved = await db.SaveAsync() > 0;
+
+        // 3️⃣ Natijani ko‘rsatish
         if (isSaved)
         {
             MessageBox.Show("Bemor muvaffaqiyatli qo'shildi!", "Muvaffaqiyat", MessageBoxButton.OK, MessageBoxImage.Information);
-            tbFirstName.Clear();
-            tbLastName.Clear();
-            txtBirthDate.Clear();
-            tbAddress.Clear();
-            tbPhone.Clear();
+            ClearForm();
             tbFirstName.Focus();
             PatientsDataGrid.ItemsSource = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
         }
@@ -356,8 +323,30 @@ public partial class MainWindow : Window
         {
             MessageBox.Show("Bemorni qo'shishda xatolik yuz berdi.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-
     }
+    private void ClearForm()
+    {
+        tbFirstName.Clear();
+        tbLastName.Clear();
+        txtBirthDate.Clear();
+        tbAddress.Clear();
+        tbPhone.Clear();
+    }
+
+    private void TextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+            switch (sender)
+            {
+                case var _ when sender == tbFirstName: tbLastName.Focus(); break;
+                case var _ when sender == tbLastName: txtBirthDate.Focus(); break;
+                case var _ when sender == txtBirthDate: tbAddress.Focus(); break;
+                case var _ when sender == tbAddress: tbPhone.Focus(); break;
+                case var _ when sender == tbPhone: btnSave.Focus(); break;
+            }
+    }
+
+
 
     private async void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -397,7 +386,7 @@ public partial class MainWindow : Window
     {
         if (sender is Button button && button.DataContext is Patient patient)
         {
-            var result = MessageBox.Show($"Bemorni o'chirishga ishonchingiz komilmi?\n{patient.FirstName} {patient.LastName}","Tasdiqlash", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = MessageBox.Show($"Bemorni o'chirishga ishonchingiz komilmi?\n{patient.FirstName} {patient.LastName}", "Tasdiqlash", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -412,5 +401,127 @@ public partial class MainWindow : Window
     private void BtnEditPatientInfo_Click(object sender, RoutedEventArgs e)
     {
 
+    }
+
+    private static List<PatientModel> MapPatients(List<Patient> entities)
+        => [.. entities.Select(p => new PatientModel
+        {
+            Id = p.Id,
+            FullName = $"{p.FirstName} {p.LastName}",
+            FirstName = p.FirstName,
+            LastName = p.LastName,
+            CreatedAt = p.CreatedAt,
+            DateOfBirth = p.DateOfBirth.ToString("dd.MM.yyyy"),
+            PhoneNumber = p.PhoneNumber,
+            Address = p.Address,
+            IsEditing = false
+        })];
+
+}
+
+public static class InputFormatter
+{
+        public static (string formattedText, int caretIndex) FormatPhoneInput(string rawInput)
+        {
+            var digits = ExtractDigits(rawInput);
+            var formatted = FormatUzbekPhone(digits);
+            var caret = CalculateCaretIndex(digits.Length);
+            return (formatted, caret);
+        }
+
+        // 👇 Private helper methods
+        private static string ExtractDigits(string input)
+        {
+            var digits = new string([.. input.Where(char.IsDigit)]);
+            return digits.StartsWith("998") ? digits.Substring(3) : digits;
+        }
+
+    private static string FormatUzbekPhone(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return "+998 ";
+
+        var digits = new string(input.Where(char.IsDigit).ToArray());
+
+        if (digits.StartsWith("998"))
+            digits = digits.Substring(3);
+
+        if (digits.Length > 9)
+            digits = digits.Substring(0, 9);
+
+        var formatted = "+998";
+
+        if (digits.Length >= 1)
+            formatted += " " + digits.Substring(0, 1);
+
+        if (digits.Length >= 2)
+            formatted = "+998 " + digits.Substring(0, 2);
+
+        if (digits.Length >= 3)
+            formatted += " " + digits.Substring(2, 1);
+
+        if (digits.Length >= 4)
+            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 2);
+
+        if (digits.Length >= 5)
+            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 3);
+
+        if (digits.Length >= 6)
+            formatted += " " + digits.Substring(5, 1);
+
+        if (digits.Length >= 7)
+            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 3) + " " + digits.Substring(5, 2);
+
+        if (digits.Length >= 8)
+            formatted += " " + digits.Substring(7, 1);
+
+        if (digits.Length == 9)
+            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 3) + " " + digits.Substring(5, 2) + " " + digits.Substring(7, 2);
+
+        return formatted;
+    }
+
+    private static int CalculateCaretIndex(int digitCount)
+        => digitCount switch
+        {
+            <= 2 => 5 + digitCount,
+            <= 5 => 5 + 2 + 1 + (digitCount - 2),
+            <= 7 => 5 + 2 + 1 + 3 + 1 + (digitCount - 5),
+            _ => 5 + 2 + 1 + 3 + 1 + 2 + 1 + (digitCount - 7)
+        };
+
+
+    public static string FormatDate(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return "";
+
+        var digits = new string(input.Where(char.IsDigit).ToArray());
+
+        if (digits.Length > 8)
+            digits = digits.Substring(0, 8); // max DDMMYYYY
+
+        string day = "", month = "", year = "";
+
+        if (digits.Length >= 1)
+            day = digits.Substring(0, Math.Min(2, digits.Length));
+
+        if (digits.Length >= 3)
+            month = digits.Substring(2, Math.Min(2, digits.Length - 2));
+
+        if (digits.Length >= 5)
+            year = digits.Substring(4, Math.Min(4, digits.Length - 4));
+
+        // Range checks
+        if (!int.TryParse(day, out int d) || d > 31) day = "";
+        if (!int.TryParse(month, out int m) || m > 12) month = "";
+        if (!int.TryParse(year, out int y) || y > DateTime.Now.Year) year = "";
+
+        var parts = new List<string>();
+        if (!string.IsNullOrEmpty(day)) parts.Add(day);
+        if (!string.IsNullOrEmpty(month)) parts.Add(month);
+        if (!string.IsNullOrEmpty(year)) parts.Add(year);
+
+        return string.Join(".", parts);
     }
 }
