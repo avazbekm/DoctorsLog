@@ -153,6 +153,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
+
                                         <TextBox x:Name="txtBirthDate"
                                                  Padding="10 0"
                                                  BorderThickness="0"
@@ -181,6 +182,7 @@
                                         <Popup x:Name="popupBirthDate"
                                                PlacementTarget="{Binding ElementName=txtBirthDate}"
                                                StaysOpen="False">
+
                                             <Border Background="White" BorderBrush="Gray" BorderThickness="1">
                                                 <Calendar x:Name="calendarBirthDate"
                                                         SelectedDatesChanged="CalendarBirthDate_SelectedDatesChanged"/>
@@ -247,10 +249,10 @@
                                     <DataGridTemplateColumn Header="Amallar" Width="Auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Button Content="Retseplar" Background="#6A9B9B" Margin="0,0,5,0"/>
-                                                    <Button Content="O'zgartirish" Background="#ccb50a" Margin="0,0,5,0" Click="BtnEditPatientInfo_Click"/>
-                                                    <Button Content="O'chirish" Background="#F44336" Click="BtnDelete_Click"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0">
+                                                    <Button Content="📋" Background="#6A9B9B" Width="30"  Padding="0"  Margin="0,0,5,0"/>
+                                                    <Button Content="✏️" Background="#ccb50a" Width="30" Padding="0" Margin="0,0,5,0" Click="BtnEditPatientInfo_Click"/>
+                                                    <Button Content="🗑" Background="#F44336" Width="30"  Padding="0" Margin="0" Click="BtnDelete_Click"/>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
