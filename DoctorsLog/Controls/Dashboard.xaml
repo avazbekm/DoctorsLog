@@ -40,13 +40,57 @@
                         <TextBlock Text="7 ta" FontSize="24" FontWeight="Bold" Foreground="#F57F17"/>
                     </StackPanel>
                 </Border>
+                    
             </WrapPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
                 <Button Content="➕ Yangi bemor" Width="150" Height="40" Margin="0,0,10,0" Background="#64B5F6" Foreground="White" FontWeight="Bold"/>
                 <Button Content="📝 Retsept yozish" Width="150" Height="40" Background="#81C784" Foreground="White" FontWeight="Bold"/>
             </StackPanel>
-        </StackPanel>
+                <GroupBox Header="📅 Bugun kelishi tavsiya etilgan bemorlar" Margin="10">
+
+                    <!-- Blur fonli qoplama -->
+                    <Grid>
+                        <!-- Orqa fon manbasi -->
+                        <Rectangle RadiusX="6" RadiusY="6">
+                            <Rectangle.Fill>
+                                <!-- Butun oynadan orqa fon ko‘chirib olish -->
+                                <VisualBrush Visual="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </Rectangle.Fill>
+                            <Rectangle.Effect>
+                                <BlurEffect Radius="12"/>
+                            </Rectangle.Effect>
+                        </Rectangle>
+
+                        <!-- Asl ListView -->
+                        <ListView x:Name="lvUpcomingAppointments">
+                            
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="2"/>
+                                    <Setter Property="Height" Value="22"/>
+                                    <Setter Property="Focusable" Value="False"/>
+                                    <Setter Property="IsHitTestVisible" Value="False"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Ism familiyasi" Width="200"
+                                    DisplayMemberBinding="{Binding Name}" />
+                                    <GridViewColumn Header="Telefon raqami" Width="150"
+                                    DisplayMemberBinding="{Binding Phone}" />
+                                    <GridViewColumn Header="So'nggi tashrifi" Width="150"
+                                    DisplayMemberBinding="{Binding UpdatedAt}" />
+                                    <GridViewColumn Header="Status" Width="150"
+                                    DisplayMemberBinding="{Binding Status}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
         </Border>
     </Border>
 </UserControl>

@@ -1,4 +1,6 @@
-﻿namespace DoctorsLog.Entities;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace DoctorsLog.Entities;
 
 public class Recipe : BaseEntity
 {
@@ -8,6 +10,7 @@ public class Recipe : BaseEntity
     public double Weight { get; set; }
     public string Recomendations { get; set; } = string.Empty;
     public string BloodPressure { get; set; } = string.Empty;
+    public DateTime? FollowUpDate { get; set; }
 
     public int PatientId { get; set; }
     public Patient? Patient { get; set; }
