@@ -169,6 +169,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
+
                                         <TextBox x:Name="txtBirthDate"
                                                  Padding="5 0"
                                                  BorderThickness="0"
@@ -197,6 +198,7 @@
                                         <Popup x:Name="popupBirthDate"
                                                PlacementTarget="{Binding ElementName=txtBirthDate}"
                                                StaysOpen="False">
+
                                             <Border Background="White" BorderBrush="Gray" BorderThickness="1">
                                                 <Calendar x:Name="calendarBirthDate"
                                                         SelectedDatesChanged="CalendarBirthDate_SelectedDatesChanged"/>
