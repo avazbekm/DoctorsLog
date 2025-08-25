@@ -87,7 +87,7 @@
                          Background="Transparent" />
             </Border>
 
-            <Button Content="Qo'shish" FontSize="16" Margin="10 0" Background="#D4D8DB" Height="35" md:ButtonAssist.CornerRadius="8" Foreground="Black" BorderThickness="0"/>
+            <Button Content="Qo'shish" FontSize="16" Margin="10 0" Background="#D4D8DB" Height="35" md:ButtonAssist.CornerRadius="8" Foreground="Black" BorderThickness="0" Click="Button_Click"/>
         </StackPanel>
 
         <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0">

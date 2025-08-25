@@ -16,7 +16,6 @@ namespace DoctorsLog;
 public partial class MainWindow : Window
 {
     private Grid patientsView;
-    private RetseptPage prescriptionsPage;
     private IAppDbContext db;
 
 #nullable disable
@@ -30,7 +29,10 @@ public partial class MainWindow : Window
         db = new AppDbContext();
 
         MainContentControl.DataContext = db;
-        MainContentControl.Content = new Dashboard(db);
+        MainContentControl.Content = new Frame
+        {
+            Content = new Dashboard(db)
+        };
     }
 
     #region Side Navigation Animation
@@ -109,14 +111,14 @@ public partial class MainWindow : Window
 
     private void ShowPrescriptionsView()
     {
-
-        // Create a Frame to host the RetseptPage
-        var frame = new Frame();
-        frame.Content = new RetseptPage();
+        Frame frame = new()
+        {
+            Content = new RetseptPage(db)
+        };
         MainContentControl.Content = frame;
     }
 
-  
+
     private void PatientsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
     }
@@ -192,8 +194,8 @@ public partial class MainWindow : Window
         if (!DateTime.TryParseExact(
                 txtBirthDate.Text.Trim(),
                 "dd.MM.yyyy",
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
                 out DateTime birthDate))
         {
             MessageBox.Show("Tug'ilgan sana noto'g'ri formatda. To'g'ri format: dd.MM.yyyy", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -336,26 +338,29 @@ public partial class MainWindow : Window
 
     private void DashboardButton_Click(object sender, RoutedEventArgs e)
     {
-        MainContentControl.Content = new Dashboard(db);
+        MainContentControl.Content = new Frame
+        {
+            Content = new Dashboard(db)
+        };
     }
 }
 
 public static class InputFormatter
 {
-        public static (string formattedText, int caretIndex) FormatPhoneInput(string rawInput)
-        {
-            var digits = ExtractDigits(rawInput);
-            var formatted = FormatUzbekPhone(digits);
-            var caret = CalculateCaretIndex(digits.Length);
-            return (formatted, caret);
-        }
+    public static (string formattedText, int caretIndex) FormatPhoneInput(string rawInput)
+    {
+        var digits = ExtractDigits(rawInput);
+        var formatted = FormatUzbekPhone(digits);
+        var caret = CalculateCaretIndex(digits.Length);
+        return (formatted, caret);
+    }
 
-        // 👇 Private helper methods
-        private static string ExtractDigits(string input)
-        {
-            var digits = new string([.. input.Where(char.IsDigit)]);
-            return digits.StartsWith("998") ? digits.Substring(3) : digits;
-        }
+    // 👇 Private helper methods
+    private static string ExtractDigits(string input)
+    {
+        var digits = new string([.. input.Where(char.IsDigit)]);
+        return digits.StartsWith("998") ? digits.Substring(3) : digits;
+    }
 
     private static string FormatUzbekPhone(string input)
     {

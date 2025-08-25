@@ -9,7 +9,7 @@ class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Recipe> Recipes { get; set; }
-    public DbSet<RecipeItem> RecipeItems { get; set; }
+    public DbSet<RecipeTemplate> RecipeItems { get; set; }
 
     public async Task<int> SaveAsync(CancellationToken cancellationToken = default)
         => await SaveChangesAsync(cancellationToken);
