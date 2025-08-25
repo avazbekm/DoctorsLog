@@ -1,4 +1,7 @@
-﻿using DoctorsLog.Windows;
+﻿using DoctorsLog.Entities;
+using DoctorsLog.Services;
+using DoctorsLog.Windows;
+using Microsoft.EntityFrameworkCore;
 using System.IO; // Stream uchun
 using System.Windows;
 using System.Windows.Controls;
@@ -9,14 +12,24 @@ namespace DoctorsLog.Pages
 {
     public partial class NewRetsepPage : Page
     {
-        public NewRetsepPage()
+        private readonly IAppDbContext db;
+        private Patient patient;
+        public NewRetsepPage(IAppDbContext db, Patient patient)
         {
+            this.db = db;
+            this.patient = patient;
             InitializeComponent();
             PopulateFontSizeComboBox();
+            _ = InitializeComponentAsync();
 
             RichTextEditor.SelectionChanged += RichTextEditor_SelectionChanged;
             RichTextEditor.TextInput += RichTextEditor_TextInput;
             RichTextEditor.GotFocus += RichTextEditor_GotFocus;
+        }
+
+        private async Task InitializeComponentAsync()
+        {
+            RecipesComboBox.ItemsSource = await db.RecipeTemplates.Select(rt => rt.Type).ToListAsync();
         }
 
         private void PopulateFontSizeComboBox()
@@ -142,36 +155,51 @@ namespace DoctorsLog.Pages
             }
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            string richTextContent = new TextRange(RichTextEditor.Document.ContentStart, RichTextEditor.Document.ContentEnd).Text;
-            MessageBox.Show("Matn saqlandi:\n" + richTextContent);
+            Recipe recipe = new()
+            {
+                Type = (RecipesComboBox.SelectedValue as string)!,
+                Content = new TextRange(RichTextEditor.Document.ContentStart, RichTextEditor.Document.ContentEnd).Text,
+                CreatedAt = DateTime.Now,
+                PatientId = patient.Id
+            };
+            await db.Recipes.AddAsync(recipe);
+            if (0 < await db.SaveAsync())
+            {
+                new SuccessDialog().ShowDialog();
+                await ToBackAsync();
+            }
+            else
+                MessageBox.Show("Qandaydir xatolik yuz berdi, iltimos ishlab chiquvchiga murojaat qiling", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void btnPechat_Click(object sender, RoutedEventArgs e)
+        private void BtnPechat_Click(object sender, RoutedEventArgs e)
         {
-            PrintDialog printDlg = new PrintDialog();
+            PrintDialog printDlg = new();
             if (printDlg.ShowDialog() == true)
             {
                 // A4 formatga mos FlowDocument yaratamiz
-                FlowDocument doc = new FlowDocument();
-                // A4 qog'ozining standart o'lchamlarini hisobga olgan holda chegara qo'yamiz
-                doc.PageWidth = 794;
-                doc.PageHeight = 1122;
-                doc.PagePadding = new Thickness(72); // Har tomondan 0.75 dyuymlik chegara
-                doc.ColumnGap = 0;
+                FlowDocument doc = new()
+                {
+                    // A4 qog'ozining standart o'lchamlarini hisobga olgan holda chegara qo'yamiz
+                    PageWidth = 794,
+                    PageHeight = 1122,
+                    PagePadding = new Thickness(72), // Har tomondan 0.75 dyuymlik chegara
+                    ColumnGap = 0
+                };
                 doc.ColumnWidth = doc.PageWidth - doc.PagePadding.Left - doc.PagePadding.Right;
                 doc.FontFamily = new System.Windows.Media.FontFamily("Times New Roman");
                 doc.FontSize = 12;
 
                 // Rekvizitlar uchun ikki ustunli jadval yaratamiz
-                Table rekvizitTable = new Table();
+                Table rekvizitTable = new();
                 rekvizitTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
                 rekvizitTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
                 rekvizitTable.Margin = new Thickness(0, 0, 0, 30);
 
-                TableRowGroup rowGroup = new TableRowGroup();
-                TableRow row = new TableRow();
+                TableRowGroup rowGroup = new();
+                TableRow row = new();
 
                 // Chap rekvizit matni (rasmdagi lotincha matn)
                 string leftRekvizit =
@@ -209,8 +237,10 @@ namespace DoctorsLog.Pages
                     TextAlignment = TextAlignment.Right,
                     LineHeight = 14
                 };
-                TableCell rightCell = new TableCell(rightParagraph);
-                rightCell.BorderThickness = new Thickness(0);
+                TableCell rightCell = new(rightParagraph)
+                {
+                    BorderThickness = new Thickness(0)
+                };
                 row.Cells.Add(rightCell);
 
                 rowGroup.Rows.Add(row);
@@ -218,15 +248,15 @@ namespace DoctorsLog.Pages
                 doc.Blocks.Add(rekvizitTable);
 
                 // RichTextEditor'dagi matnni olish va hujjatga qo'shish
-                FlowDocument tempDoc = new FlowDocument();
-                TextRange sourceRange = new TextRange(RichTextEditor.Document.ContentStart, RichTextEditor.Document.ContentEnd);
+                FlowDocument tempDoc = new();
+                TextRange sourceRange = new(RichTextEditor.Document.ContentStart, RichTextEditor.Document.ContentEnd);
 
-                using (MemoryStream stream = new MemoryStream())
+                using (MemoryStream stream = new())
                 {
                     sourceRange.Save(stream, DataFormats.Xaml);
                     stream.Position = 0;
 
-                    TextRange destRange = new TextRange(tempDoc.ContentStart, tempDoc.ContentEnd);
+                    TextRange destRange = new(tempDoc.ContentStart, tempDoc.ContentEnd);
                     destRange.Load(stream, DataFormats.Xaml);
                 }
 
@@ -240,17 +270,42 @@ namespace DoctorsLog.Pages
             }
         }
 
-        private void btnBack_Click(object sender, RoutedEventArgs e)
+        private async void BtnBack_Click(object sender, RoutedEventArgs e)
         {
-            HistoryPatientWindow historyPatientWindow = new HistoryPatientWindow();
-            // Frame'ni yashirish
-            historyPatientWindow.MainFrame.Visibility = Visibility.Collapsed;
-            // DataGrid va "Yangi Retsept" tugmasini ko'rsatish
-            historyPatientWindow.HistoryDataGridBorder.Visibility = Visibility.Visible;
-            historyPatientWindow.btnNewRetsep.Visibility = Visibility.Visible;
+            await ToBackAsync();
+        }
 
-            // Frame ichidagi kontentni tozalash
-            historyPatientWindow.MainFrame.Content = null;
+        private async Task ToBackAsync()
+        {
+            // HistoryPatientWindow ga murojaat qilish
+            var parentWindow = (HistoryPatientWindow)Window.GetWindow(this);
+            if (parentWindow != null)
+            {
+                parentWindow.MainFrame.Content = null; // Page ni "yopish"
+                parentWindow.MainFrame.Visibility = Visibility.Collapsed;
+
+                parentWindow.HistoryDataGridBorder.Visibility = Visibility.Visible;
+                parentWindow.btnNewRetsep.Visibility = Visibility.Visible;
+                await parentWindow.InitializeRecipeFieldsAsync();
+            }
+        }
+
+
+        private void RecipesComboBox_SelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (RecipesComboBox.SelectedItem is string selectedTemplate)
+            {
+                var template = db.RecipeTemplates.FirstOrDefault(rt => rt.Type == selectedTemplate);
+                if (template != null)
+                {
+                    RichTextEditor.Document.Blocks.Clear();
+                    var paragraph = new Paragraph();
+                    var run = new Run(template.Content) { FontSize = 14.0 };
+                    paragraph.Inlines.Add(run);
+                    RichTextEditor.Document.Blocks.Add(paragraph);
+                    RichTextEditor.CaretPosition = run.ElementEnd;
+                }
+            }
         }
     }
 }

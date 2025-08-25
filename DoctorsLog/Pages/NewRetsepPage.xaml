@@ -68,13 +68,15 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
             <Border CornerRadius="8" Height="35" Width="200" Background="#FFFFFF" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0,0,10,0">
-                <ComboBox x:Name="PatientsComboBox"
+                <ComboBox x:Name="RecipesComboBox"
                           Width="190"
                           FontSize="16"
                           Padding="5 0 2 0"
                           md:HintAssist.Hint="Retsep tanlash"
                           Background="Transparent"
-                          BorderThickness="0"/>
+                          BorderThickness="0" Margin="4,0,4,6" 
+                          VerticalAlignment="Bottom"
+                          SelectionChanged="RecipesComboBox_SelectionChanged"/>
             </Border>
  
         </StackPanel>
@@ -122,7 +124,7 @@
                                   IsEditable="False" />
                         <Button x:Name="btnPechat"
                                 Content="🖨"
-                                Click="btnPechat_Click"
+                                Click="BtnPechat_Click"
                                 Margin="10,0,0,0"
                                 Style="{DynamicResource MaterialDesignFlatButton}" />
                         <Button x:Name="SaveButton"
@@ -132,7 +134,7 @@
                                 Style="{DynamicResource MaterialDesignFlatButton}" />
                         <Button x:Name="btnBack"
                                 Content="🔙"
-                                Click="btnBack_Click"
+                                Click="BtnBack_Click"
                                 Margin="10,0,0,0"
                                 Style="{DynamicResource MaterialDesignFlatButton}" />
                     </ToolBar>

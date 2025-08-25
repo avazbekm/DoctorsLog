@@ -228,7 +228,7 @@ public partial class MainWindow : Window
                 ? "Bemor ma'lumotlari yangilandi!"
                 : "Bemor muvaffaqiyatli qo'shildi!";
 
-            MessageBox.Show(message, "Hammasi ko'ngildagidek", MessageBoxButton.OK, MessageBoxImage.Information);
+            new SuccessDialog().ShowDialog();
 
             ClearForm();
             tbFirstName.Focus();
@@ -340,8 +340,10 @@ public partial class MainWindow : Window
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        HistoryPatientWindow historyPatientWindow = new();
-        historyPatientWindow.Show();
+        if (PatientsDataGrid.SelectedItem is Patient selectedPatient)
+        {
+            new HistoryPatientWindow(db, selectedPatient).Show();
+        }
     }
 }
 

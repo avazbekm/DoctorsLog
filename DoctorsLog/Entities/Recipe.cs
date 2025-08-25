@@ -5,6 +5,6 @@ public class Recipe : BaseEntity
     public string Type { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
 
-    public int PatientId { get; set; }
+    public long PatientId { get; set; }
     public Patient? Patient { get; set; }
 }
