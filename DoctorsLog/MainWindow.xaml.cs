@@ -4,10 +4,8 @@ using DoctorsLog.Services;
 using DoctorsLog.Windows;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -18,6 +16,7 @@ public partial class MainWindow : Window
 {
     private Grid patientsView;
     private IAppDbContext db;
+    private long? editingPatientId = null;
 
 #nullable disable
     public MainWindow()
@@ -119,11 +118,6 @@ public partial class MainWindow : Window
         MainContentControl.Content = frame;
     }
 
-
-    private void PatientsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-    }
-
     private void DateTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         if (sender is not TextBox tb) return;
@@ -132,11 +126,6 @@ public partial class MainWindow : Window
         tb.Text = InputFormatter.FormatDate(tb.Text);
         tb.CaretIndex = tb.Text.Length;
         tb.TextChanged += DateTextBox_TextChanged;
-    }
-
-    private void DateTextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-    {
-        e.Handled = !Regex.IsMatch(e.Text, @"[\d\.]");
     }
 
     private void BtnBirthCalendar_Click(object sender, RoutedEventArgs e)
@@ -178,7 +167,6 @@ public partial class MainWindow : Window
         }
     }
     #endregion
-
     private async void BtnSave_Click(object sender, RoutedEventArgs e)
     {
         // 1️⃣ Input validation
@@ -203,40 +191,63 @@ public partial class MainWindow : Window
             return;
         }
 
-        // 2️⃣ Ma'lumotni saqlash
-        var patient = new Patient
+        bool isSaved = false;
+        if (editingPatientId.HasValue)
         {
-            FirstName = tbFirstName.Text.Trim(),
-            LastName = tbLastName.Text.Trim(),
-            Address = tbAddress.Text.Trim(),
-            PhoneNumber = tbPhone.Text.Trim(),
-            DateOfBirth = birthDate,
-            CreatedAt = DateTime.Now
-        };
+            var existingPatient = await db.Patients.FindAsync(editingPatientId.Value);
+            if (existingPatient is not null)
+            {
+                existingPatient.FirstName = tbFirstName.Text.Trim();
+                existingPatient.LastName = tbLastName.Text.Trim();
+                existingPatient.Address = tbAddress.Text.Trim();
+                existingPatient.PhoneNumber = tbPhone.Text.Trim();
+                existingPatient.DateOfBirth = birthDate;
 
-        db.Patients.Add(patient);
-        bool isSaved = await db.SaveAsync() > 0;
-
-        // 3️⃣ Natijani ko‘rsatish
-        if (isSaved)
-        {
-            MessageBox.Show("Bemor muvaffaqiyatli qo'shildi!", "Muvaffaqiyat", MessageBoxButton.OK, MessageBoxImage.Information);
-            ClearForm();
-            tbFirstName.Focus();
-            PatientsDataGrid.ItemsSource = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
+                isSaved = await db.SaveAsync() > 0;
+            }
         }
         else
         {
-            MessageBox.Show("Bemorni qo'shishda xatolik yuz berdi.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+            var patient = new Patient
+            {
+                FirstName = tbFirstName.Text.Trim(),
+                LastName = tbLastName.Text.Trim(),
+                Address = tbAddress.Text.Trim(),
+                PhoneNumber = tbPhone.Text.Trim(),
+                DateOfBirth = birthDate,
+                CreatedAt = DateTime.Now
+            };
+
+            db.Patients.Add(patient);
+            isSaved = await db.SaveAsync() > 0;
         }
-    }
-    private void ClearForm()
-    {
-        tbFirstName.Clear();
-        tbLastName.Clear();
-        txtBirthDate.Clear();
-        tbAddress.Clear();
-        tbPhone.Clear();
+
+        if (isSaved)
+        {
+            string message = editingPatientId.HasValue
+                ? "Bemor ma'lumotlari yangilandi!"
+                : "Bemor muvaffaqiyatli qo'shildi!";
+
+            MessageBox.Show(message, "Muvaffaqiyat", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            ClearForm();
+            tbFirstName.Focus();
+            editingPatientId = null;
+            btnSave.Content = "Saqlash";
+
+            PatientsDataGrid.ItemsSource = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
+        }
+        else
+            MessageBox.Show("Ma'lumotni saqlashda xatolik yuz berdi.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        void ClearForm()
+        {
+            tbFirstName.Clear();
+            tbLastName.Clear();
+            txtBirthDate.Clear();
+            tbAddress.Clear();
+            tbPhone.Clear();
+        }
     }
 
     private void TextBox_KeyDown(object sender, KeyEventArgs e)
@@ -306,35 +317,17 @@ public partial class MainWindow : Window
 
     private void BtnEditPatientInfo_Click(object sender, RoutedEventArgs e)
     {
-        // 2. Faqat tanlangan qatorni tahrirlashga o‘tkazamiz
-        if (sender is Button btn && btn.DataContext is Patient selectedPatient)
-        {
-            selectedPatient.IsEditing = true;
-        }
-
-        // 3. UI yangilansin
-        PatientsDataGrid.Items.Refresh();
-    }
-
-
-    private void BtnConfirmEdit_Click(object sender, RoutedEventArgs e)
-    {
         if (sender is Button btn && btn.DataContext is Patient patient)
         {
-            patient.IsEditing = false;
-            // Bu yerda ma'lumotni saqlash logikasini qo‘shishing mumkin
+            editingPatientId = patient.Id;
+            tbFirstName.Text = patient.FirstName;
+            tbLastName.Text = patient.LastName;
+            txtBirthDate.Text = patient.DateOfBirth.ToString("dd.MM.yyyy");
+            tbAddress.Text = patient.Address;
+            tbPhone.Text = patient.PhoneNumber;
+            tbFirstName.Focus();
+            btnSave.Content = "Yangilash";
         }
-        PatientsDataGrid.Items.Refresh();
-    }
-
-    private void BtnCancelEdit_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button btn && btn.DataContext is Patient patient)
-        {
-            patient.IsEditing = false;
-            // Istasang eski qiymatga qaytarish logikasini qo‘shishing mumkin
-        }
-        PatientsDataGrid.Items.Refresh();
     }
 
     private void DashboardButton_Click(object sender, RoutedEventArgs e)
@@ -347,7 +340,7 @@ public partial class MainWindow : Window
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        HistoryPatientWindow historyPatientWindow = new HistoryPatientWindow();
+        HistoryPatientWindow historyPatientWindow = new();
         historyPatientWindow.Show();
     }
 }
@@ -456,19 +449,5 @@ public static class InputFormatter
         if (!string.IsNullOrEmpty(year)) parts.Add(year);
 
         return string.Join(".", parts);
-    }
-}
-public class BoolToVisibilityConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        bool invert = parameter?.ToString() == "False";
-        bool flag = value is bool b && b;
-        return (flag ^ invert) ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        return (value is Visibility v) && v == Visibility.Visible;
     }
 }
