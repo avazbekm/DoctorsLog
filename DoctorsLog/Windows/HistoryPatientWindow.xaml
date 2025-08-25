@@ -6,64 +6,75 @@
         xmlns:local="clr-namespace:DoctorsLog.Windows"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="HistoryPatientWindow" Height="600" Width="800"
+        Title="HistoryPatientWindow" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" CornerRadius="10" Padding="15" Background="#FFFFFF" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0,0,0,10">
+        <Border Grid.Row="0" CornerRadius="10" Padding="15" Background="Snow" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0,0,0,10">
             <StackPanel Orientation="Vertical">
-                <TextBlock x:Name="PatientNameTextBlock"
-                           FontSize="20"
-                           FontWeight="Bold"
-                           Foreground="#333333"
-                           Margin="0,0,0,5"/>
-                <TextBlock x:Name="PatientDateOfBirthTextBlock"
-                           FontSize="14"
-                           Foreground="#666666"/>
+                <WrapPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="Ismi:" FontSize="16" Foreground="#333333" Margin="0,0,10,5"/>
+                    <TextBlock x:Name="tbName" FontSize="16" Width="120" Foreground="#333333" Margin="0,0,10,5"/>
+                    <TextBlock Text="Familiya:" FontSize="16" Foreground="#666666"/>
+                    <TextBlock x:Name="tbLastName" FontSize="16" Width="120" Margin="5 0" Foreground="#666666"/>
+                    <TextBlock Text="Tug'ilgan sana:" FontSize="16" Foreground="#666666"/>
+                    <TextBlock x:Name="tbBithday" FontSize="16" Width="80" Margin="5 0" Foreground="#666666"/>
+                    <TextBlock Text="Manzil:" FontSize="16" Foreground="#666666"/>
+                    <TextBlock x:Name="tbAddress" FontSize="16" Width="180" Margin="5 0" Foreground="#666666"/>
+                    <TextBlock Text="Telefon:" FontSize="16" Foreground="#666666"/>
+                    <TextBlock x:Name="tbPhone" FontSize="16" Width="120" Margin="5 0" Foreground="#666666"/>
+                </WrapPanel>
+                <Button x:Name="btnNewRetsep" 
+                        Content="Yangi retsep qo'shish" 
+                        Background="#D4D8DB" 
+                        Margin="5 0" 
+                        md:ButtonAssist.CornerRadius="8"
+                        Click="btnNewRetsep_Click" 
+                        BorderThickness='0'
+                        HorizontalAlignment="Left"/>
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="1" CornerRadius="10" Padding="15" Background="#FFFFFF" BorderBrush="#D3DDE6" BorderThickness="1">
-            <DataGrid x:Name="HistoryDataGrid"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      HeadersVisibility="Column"
-                      GridLinesVisibility="Horizontal"
-                      RowBackground="#F9F9F9"
-                      AlternatingRowBackground="#F0F0F0"
-                      BorderThickness="0">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="T/r" Binding="{Binding Id}" Width="50"/>
-                    <DataGridTextColumn Header="Retsep sanasi" Binding="{Binding ReceiptDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="200"/>
-                    <DataGridTemplateColumn Header="Retsep nomi" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="{Binding ReceiptName}"
-                                        Style="{DynamicResource MaterialDesignFlatButton}"
-                                        Click="ReceiptNameButton_Click"
-                                        Tag="{Binding Id}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Border>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border x:Name="HistoryDataGridBorder"
+                    CornerRadius="10"
+                    Padding="15"
+                    Background="#FFFFFF"
+                    BorderBrush="#D3DDE6"
+                    BorderThickness="1">
+                <DataGrid x:Name="HistoryDataGrid"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowBackground="#F9F9F9"
+                          AlternatingRowBackground="#F0F0F0"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="T/r" Binding="{Binding Id}" Width="50"/>
+                        <DataGridTextColumn Header="Retsept sanasi" Binding="{Binding ReceiptDate, StringFormat='yyyy-MM-dd HH:mm'}" Width="200"/>
+                        <DataGridTemplateColumn Header="Retsep nomi" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding ReceiptName}"
+                                            Style="{DynamicResource MaterialDesignFlatButton}"
+                                            Click="ReceiptNameButton_Click"
+                                            Tag="{Binding Id}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button x:Name="PrintButton"
-                    Content="Pechat"
-                    FontSize="16"
-                    Height="35"
-                    Background="#2196F3"
-                    Foreground="White"
-                    md:ButtonAssist.CornerRadius="8"
-                    BorderThickness="0"
-                    Click="PrintButton_Click"/>
-        </StackPanel>
+            <Frame x:Name="MainFrame" Visibility="Collapsed" />
+        </Grid>
     </Grid>
 </Window>
