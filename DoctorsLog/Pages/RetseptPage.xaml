@@ -8,6 +8,57 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="RetseptPage">
+    <Page.Resources>
+        <Style x:Key="PersistentArrowComboBox" TargetType="{x:Type ComboBox}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleButton" 
+                                          Grid.Column="2" 
+                                          Focusable="false" 
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <Path x:Name="Arrow"
+                                      Grid.Column="1"
+                                      Fill="{DynamicResource MaterialDesignDarkForeground}"
+                                      HorizontalAlignment="Right" 
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,5,0"
+                                      Data="M0,0 L4,4 8,0z"/>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="ContentSite" 
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="3,3,23,3" />
+                            <Popup x:Name="Popup" 
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   StaysOpen="False"
+                                   AllowsTransparency="True" 
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" 
+                                      SnapsToDevicePixels="True" 
+                                      Margin="0,1,0,0">
+                                    <Border x:Name="DropDownBorder" 
+                                            Background="{DynamicResource MaterialDesignPaper}" 
+                                            BorderThickness="1" 
+                                            BorderBrush="{DynamicResource MaterialDesignLightForeground}"/>
+                                    <ScrollViewer Margin="4,6,4,6" 
+                                                  SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" 
+                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -16,52 +67,86 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
-            <ComboBox x:Name="PatientsComboBox" Width="200" Margin="0,0,10,0"
-                      md:HintAssist.Hint="Bemor tanlash"
-                      Style="{DynamicResource MaterialDesignFloatingHintComboBox}" />
-            <Button Content="Qo'shish" Background="#4CAF50" Foreground="White" BorderThickness="0"/>
+            <Border CornerRadius="8" Height="35" Width="200" Background="#FFFFFF" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0,0,10,0">
+                <ComboBox x:Name="PatientsComboBox"
+                          Width="190"
+                          FontSize="16"
+                          Padding="5 0 2 0"
+                          md:HintAssist.Hint="Retsep tanlash"
+                          Background="Transparent"
+                          BorderThickness="0"/>
+            </Border>
+            <Border CornerRadius="8" Height="35" Background="#FFFFFF" Margin="0 5">
+                <TextBox x:Name="tbDrug"
+                         Padding="10 5"
+                         MinWidth="200"
+                         FontSize="16"
+                         md:HintAssist.Hint="Retsep nomi"
+                         Style="{DynamicResource MaterialDesignTextBox}"
+                         BorderThickness="0"
+                         Background="Transparent" />
+            </Border>
+
+            <Button Content="Qo'shish" FontSize="16" Margin="10 0" Background="#D4D8DB" Height="35" md:ButtonAssist.CornerRadius="8" Foreground="Black" BorderThickness="0"/>
         </StackPanel>
 
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                <Border CornerRadius="8" Background="#FFFFFF" Margin="0 5">
-                    <TextBox x:Name="tbDrug"
-                             Padding="10 5"
-                             MinWidth="250"
-                             FontSize="16"
-                             md:HintAssist.Hint="Dori nomi"
-                             Style="{DynamicResource MaterialDesignTextBox}"
+                <ToolBarTray Grid.Row="0" Margin="0 0 0 10">
+                    <ToolBar>
+                        <ToggleButton Command="EditingCommands.ToggleBold"
+                                      ToolTip="Qalin (Ctrl+B)">
+                            <TextBlock FontWeight="Bold">B</TextBlock>
+                        </ToggleButton>
+                        <ToggleButton Command="EditingCommands.ToggleItalic"
+                                      ToolTip="Kursiv (Ctrl+I)">
+                            <TextBlock FontStyle="Italic">I</TextBlock>
+                        </ToggleButton>
+                        <ToggleButton Command="EditingCommands.ToggleUnderline"
+                                      ToolTip="Ostiga chizilgan (Ctrl+U)">
+                            <TextBlock TextDecorations="Underline">U</TextBlock>
+                        </ToggleButton>
+                        <Separator />
+                        <ToggleButton Command="EditingCommands.AlignLeft"
+                                      ToolTip="Chapga hizalash">
+                            <md:PackIcon Kind="FormatAlignLeft" />
+                        </ToggleButton>
+                        <ToggleButton Command="EditingCommands.AlignCenter"
+                                      ToolTip="Markazga hizalash">
+                            <md:PackIcon Kind="FormatAlignCenter" />
+                        </ToggleButton>
+                        <ToggleButton Command="EditingCommands.AlignRight"
+                                      ToolTip="O'ngga hizalash">
+                            <md:PackIcon Kind="FormatAlignRight" />
+                        </ToggleButton>
+                        <Separator />
+                        <ComboBox x:Name="FontSizeComboBox"
+                                  Width="60"
+                                  Margin="5 0"
+                                  Style="{StaticResource  MaterialDesignDataGridComboBox}"
+                                  SelectionChanged="FontSizeComboBox_SelectionChanged"
+                                  IsEditable="False" />
+                        <Button x:Name="SaveButton"
+                                Content="Saqlash"
+                                Click="SaveButton_Click"
+                                Margin="10,0,0,0"
+                                Style="{DynamicResource MaterialDesignFlatButton}" />
+                    </ToolBar>
+                </ToolBarTray>
+
+                <RichTextBox x:Name="RichTextEditor" Grid.Row="1"
+                             AcceptsTab="True"
+                             SpellCheck.IsEnabled="True"
                              BorderThickness="0"
-                             Background="Transparent" />
-                </Border>
-                <Button Content="+" Width="150" Background="#4CAF50" Foreground="White" BorderThickness="0" Margin="5 5" />
-            </StackPanel>
+                             HorizontalScrollBarVisibility="Disabled"
+                             VerticalScrollBarVisibility="Auto" />
 
-            <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1">
-                <DataGrid x:Name="DrugsDataGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          RowBackground="#F9F9F9" AlternatingRowBackground="#F0F0F0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="T/r" Width="50"/>
-                        <DataGridTextColumn Header="Dori nomi" Width="*"/>
-                        <DataGridTemplateColumn Header="Amallar" Width="Auto">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Content="O'zgartirish" Background="#6A9B9B" Margin="0,0,5,0" />
-                                        <Button Content="O'chirish" Background="#F44336" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
-        </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </Page>
