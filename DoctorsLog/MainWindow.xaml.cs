@@ -1,6 +1,7 @@
 ﻿using DoctorsLog.Entities;
 using DoctorsLog.Pages;
 using DoctorsLog.Services;
+using DoctorsLog.Windows;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -342,6 +343,12 @@ public partial class MainWindow : Window
         {
             Content = new Dashboard(db)
         };
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        HistoryPatientWindow historyPatientWindow = new HistoryPatientWindow();
+        historyPatientWindow.Show();
     }
 }
 
