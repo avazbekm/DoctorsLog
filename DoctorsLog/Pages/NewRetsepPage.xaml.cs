@@ -1,7 +1,5 @@
 ﻿using DoctorsLog.Windows;
-using System;
 using System.IO; // Stream uchun
-using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;

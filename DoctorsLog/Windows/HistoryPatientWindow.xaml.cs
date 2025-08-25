@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Printing;
+﻿using DoctorsLog.Pages; // NewRetsepPage'ni ishlatish uchun
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Xps;
-using System.Windows.Xps.Packaging;
-using DoctorsLog.Pages; // NewRetsepPage'ni ishlatish uchun
 
 namespace DoctorsLog.Windows
 {

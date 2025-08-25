@@ -68,26 +68,28 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
             <Border CornerRadius="8" Height="35" Width="200" Background="#FFFFFF" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0,0,10,0">
-                <ComboBox x:Name="PatientsComboBox"
+                <ComboBox x:Name="RecipesComboBox"
                           Width="190"
                           FontSize="16"
                           Padding="5 0 2 0"
                           md:HintAssist.Hint="Retsep tanlash"
                           Background="Transparent"
-                          BorderThickness="0"/>
+                          BorderThickness="0"
+                          SelectionChanged="RecipesComboBox_SelectionChanged"/>
             </Border>
             <Border CornerRadius="8" Height="35" Background="#FFFFFF" Margin="0 5">
-                <TextBox x:Name="tbDrug"
+                <TextBox x:Name="tbNameRecipe"
                          Padding="10 5"
                          MinWidth="200"
                          FontSize="16"
                          md:HintAssist.Hint="Retsep nomi"
                          Style="{DynamicResource MaterialDesignTextBox}"
                          BorderThickness="0"
-                         Background="Transparent" />
+                         Background="Transparent" 
+                         TextChanged="TbNameRecipe_TextChanged"/>
             </Border>
 
-            <Button Content="Qo'shish" FontSize="16" Margin="10 0" Background="#D4D8DB" Height="35" md:ButtonAssist.CornerRadius="8" Foreground="Black" BorderThickness="0" Click="Button_Click"/>
+            <Button x:Name="btnRecipeAction" Content="Qo'shish" FontSize="16" Margin="10 0" Background="#D4D8DB" Height="35" md:ButtonAssist.CornerRadius="8" Foreground="Black" BorderThickness="0" Click="ActionButton_Click" Visibility="Hidden"/>
         </StackPanel>
 
         <Border Grid.Row="1" Background="#FFFFFF" CornerRadius="10" Padding="15" BorderBrush="#D3DDE6" BorderThickness="1" Margin="0">
@@ -131,11 +133,6 @@
                                   Style="{StaticResource  MaterialDesignDataGridComboBox}"
                                   SelectionChanged="FontSizeComboBox_SelectionChanged"
                                   IsEditable="False" />
-                        <Button x:Name="SaveButton"
-                                Content="Saqlash"
-                                Click="SaveButton_Click"
-                                Margin="10,0,0,0"
-                                Style="{DynamicResource MaterialDesignFlatButton}" />
                     </ToolBar>
                 </ToolBarTray>
 

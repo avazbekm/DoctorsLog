@@ -1,17 +1,20 @@
-﻿using DoctorsLog.Entities;
+﻿namespace DoctorsLog.Pages;
+
+using DoctorsLog.Entities;
 using DoctorsLog.Services;
-using Microsoft.EntityFrameworkCore;
+using DoctorsLog.Windows;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 
-namespace DoctorsLog.Pages;
-
 public partial class RetseptPage : Page
 {
+    private readonly IAppDbContext db;
+    private long? id = null;
     public RetseptPage(IAppDbContext db)
     {
+        this.db = db;
         InitializeComponent();
         PopulateFontSizeComboBox();
 
@@ -20,7 +23,7 @@ public partial class RetseptPage : Page
         RichTextEditor.TextInput += RichTextEditor_TextInput;
         RichTextEditor.GotFocus += RichTextEditor_GotFocus;
 
-        PatientsComboBox.ItemsSource =  db.Recipes.Select(r => r.Type).ToList();
+        RecipesComboBox.ItemsSource = db.RecipeTemplates.Select(rt => rt.Type).ToList();
     }
 
     private void PopulateFontSizeComboBox()
@@ -80,25 +83,18 @@ public partial class RetseptPage : Page
         {
             // Kursor joyidagi Run yoki Paragraphning shrift hajmini aniqlash
             var caretPosition = RichTextEditor.CaretPosition;
-            var currentRun = caretPosition.GetAdjacentElement(LogicalDirection.Backward) as Run;
-            if (currentRun != null && currentRun.FontSize > 0)
-            {
+            if (caretPosition.GetAdjacentElement(LogicalDirection.Backward) is Run currentRun && currentRun.FontSize > 0)
                 FontSizeComboBox.SelectedItem = FontSizeComboBox.Items.Contains(currentRun.FontSize) ? currentRun.FontSize : null;
-            }
             else
-            {
                 // ComboBox da tanlangan hajmni (14) saqlash
                 if (FontSizeComboBox.SelectedItem != null)
-                {
-                    var paragraph = caretPosition.Paragraph ?? new Paragraph();
-                    var newRun = new Run("") { FontSize = (double)FontSizeComboBox.SelectedItem };
-                    paragraph.Inlines.Add(newRun);
-                    RichTextEditor.CaretPosition = newRun.ElementStart;
-                    if (!RichTextEditor.Document.Blocks.Contains(paragraph))
-                    {
-                        RichTextEditor.Document.Blocks.Add(paragraph);
-                    }
-                }
+            {
+                var paragraph = caretPosition.Paragraph ?? new Paragraph();
+                var newRun = new Run("") { FontSize = (double)FontSizeComboBox.SelectedItem };
+                paragraph.Inlines.Add(newRun);
+                RichTextEditor.CaretPosition = newRun.ElementStart;
+                if (!RichTextEditor.Document.Blocks.Contains(paragraph))
+                    RichTextEditor.Document.Blocks.Add(paragraph);
             }
         }
     }
@@ -155,19 +151,90 @@ public partial class RetseptPage : Page
         }
     }
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    private void SaveButton_Click()
     {
+        if (string.IsNullOrEmpty(RecipesComboBox.SelectedItem.ToString()))
+        {
+            System.Windows.MessageBox.Show("Retsep tanlanmagan!", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
         string richTextContent = new TextRange(RichTextEditor.Document.ContentStart, RichTextEditor.Document.ContentEnd).Text;
-        MessageBox.Show("Matn saqlandi:\n" + richTextContent);
+        db.RecipeTemplates.First(rt => rt.Type == RecipesComboBox.SelectedItem).Content = richTextContent;
+        new SuccessDialog().ShowDialog();
     }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
+    private void ActionButton_Click(object sender, RoutedEventArgs e)
     {
-        var recipe = new Recipe()
+        if (string.IsNullOrEmpty(tbNameRecipe.Text))
+            SaveButton_Click();
+        else
+            AddButton_Click();
+    }
+
+    private void AddButton_Click()
+    {
+        var recipeTemplate = db.RecipeTemplates.FirstOrDefault(r => r.Type == tbNameRecipe.Text);
+        if (recipeTemplate is not null)
         {
-            Content = tbDrug.Text
+            System.Windows.MessageBox.Show("Bunday retsept turi avval qo'shilgan!", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        recipeTemplate = new RecipeTemplate()
+        {
+            Type = tbNameRecipe.Text,
+            Content = new TextRange(RichTextEditor.Document.ContentStart, RichTextEditor.Document.ContentEnd).Text
         };
 
+        db.RecipeTemplates.Add(recipeTemplate);
+        if (0 < db.SaveAsync().Result)
+            new SuccessDialog().ShowDialog();
+        else
+        {
+            System.Windows.MessageBox.Show("Xatolik yuz berdi!", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
 
+        RecipesComboBox.SelectedItem = tbNameRecipe;
+        tbNameRecipe.Text = string.Empty;
+    }
+
+    private void RecipesComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (RecipesComboBox.SelectedItem is null)
+        {
+            if (string.IsNullOrEmpty(tbNameRecipe.Text))
+                btnRecipeAction.Visibility = Visibility.Hidden;
+
+            return;
+        }
+
+        btnRecipeAction.Content = "Saqlash";
+        btnRecipeAction.Visibility = Visibility.Visible;
+        tbNameRecipe.Text = string.Empty;
+
+        var template = db.RecipeTemplates.FirstOrDefault(rt => rt.Type == RecipesComboBox.SelectedItem)!;
+        id = template.Id;
+        RichTextEditor.Document.Blocks.Clear();
+        var paragraph = new Paragraph();
+        var run = new Run(template.Content) { FontSize = 14.0 };
+        paragraph.Inlines.Add(run);
+        RichTextEditor.Document.Blocks.Add(paragraph);
+        RichTextEditor.CaretPosition = run.ElementStart;
+    }
+
+    private void TbNameRecipe_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(tbNameRecipe.Text))
+        {
+            if (RecipesComboBox.SelectedItem is null)
+                btnRecipeAction.Visibility = Visibility.Hidden;
+
+            return;
+        }
+
+        btnRecipeAction.Content = "Yaratish";
+        btnRecipeAction.Visibility = Visibility.Visible;
+        RecipesComboBox.SelectedItem = null;
     }
 }

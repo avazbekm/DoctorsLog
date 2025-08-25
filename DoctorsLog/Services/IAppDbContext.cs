@@ -7,7 +7,7 @@ public interface IAppDbContext
 {
     DbSet<Patient> Patients { get; }
     DbSet<Recipe> Recipes { get; }
-    DbSet<RecipeTemplate> RecipeItems { get; }
+    DbSet<RecipeTemplate> RecipeTemplates { get; }
 
     Task<int> SaveAsync(CancellationToken cancellationToken = default);
 }

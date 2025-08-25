@@ -228,7 +228,7 @@ public partial class MainWindow : Window
                 ? "Bemor ma'lumotlari yangilandi!"
                 : "Bemor muvaffaqiyatli qo'shildi!";
 
-            MessageBox.Show(message, "Muvaffaqiyat", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(message, "Hammasi ko'ngildagidek", MessageBoxButton.OK, MessageBoxImage.Information);
 
             ClearForm();
             tbFirstName.Focus();
