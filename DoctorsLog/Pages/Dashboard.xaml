@@ -42,7 +42,7 @@
                     </Border>
 
                 </WrapPanel>
-                <GroupBox Header="📅 Bugun kelishi tavsiya etilgan bemorlar" Margin="10">
+                <GroupBox Header="📅 Bugun ko'rikdan o'tgan bemorlar" Margin="10">
                     <Grid>
                         <!-- Blur fon qatlami -->
                         <Rectangle RadiusX="6" RadiusY="6">
@@ -75,7 +75,7 @@
                                     <GridViewColumn Header="Telefon raqami" Width="160"
                                 DisplayMemberBinding="{Binding Phone}" />
                                     <GridViewColumn Header="So'nggi tashrifi" Width="160"
-                                DisplayMemberBinding="{Binding CreatedAt}" />
+                                DisplayMemberBinding="{Binding CreatedAt,StringFormat='dd.MM.yyyy HH:mm'}" />
                                 </GridView>
                             </ListView.View>
                         </ListView>

@@ -41,7 +41,7 @@ public partial class Dashboard : Page
             {
                 Name = $"{r.Patient!.FirstName} {r.Patient.LastName}",
                 Phone = r.Patient.PhoneNumber,
-                CreatedAt = r.CreatedAt.ToString(),
+                CreatedAt = r.CreatedAt.ToString("dd.MM.yyyy HH:mm"),
             })
             .Take(10)
             .ToListAsync();

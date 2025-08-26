@@ -18,15 +18,15 @@
             <StackPanel Orientation="Vertical">
                 <WrapPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <TextBlock Text="Ismi:" FontSize="16" Foreground="#666666" Margin="0,0,10,5"/>
-                    <TextBlock x:Name="tbFirstName" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
+                    <TextBlock x:Name="tbFirstName" FontWeight="Medium" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
                     <TextBlock Text="Familiya:" FontSize="16" Foreground="#666666"/>
-                    <TextBlock x:Name="tbLastName" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
+                    <TextBlock x:Name="tbLastName" FontWeight="Medium" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
                     <TextBlock Text="Tug'ilgan sana:" FontSize="16" Foreground="#666666"/>
-                    <TextBlock x:Name="tbBithday" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
+                    <TextBlock x:Name="tbBithday" FontWeight="Medium" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
                     <TextBlock Text="Manzil:" FontSize="16" Foreground="#666666"/>
-                    <TextBlock x:Name="tbAddress" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
+                    <TextBlock x:Name="tbAddress" FontWeight="Medium" FontSize="16" Margin="5 0 25 0" Foreground="#333333"/>
                     <TextBlock Text="Telefon:" FontSize="16" Foreground="#666666"/>
-                    <TextBlock x:Name="tbPhone" FontSize="16" Margin="5 0" Foreground="#333333"/>
+                    <TextBlock x:Name="tbPhone" FontWeight="Medium" FontSize="16" Margin="5 0" Foreground="#333333"/>
                 </WrapPanel>
                 
             </StackPanel>
@@ -58,10 +58,9 @@
                         <DataGridTemplateColumn Header="Retsep nomi" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="{Binding Content}"
-                            Style="{DynamicResource MaterialDesignFlatButton}"
-                            Click="RecipeNameButton_Click"
-                            Tag="{Binding Id}"/>
+                                    <Button x:Name="btnWroteHistoryRetsep" Content="{Binding Title}"
+                                            Click="RecipeNameButton_Click" Foreground="Red"
+                                            Tag="{Binding Id}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

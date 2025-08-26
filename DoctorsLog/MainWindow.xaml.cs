@@ -4,6 +4,7 @@ using DoctorsLog.Services;
 using DoctorsLog.Windows;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -106,7 +107,28 @@ public partial class MainWindow : Window
 
         // Bemorlar ro'yxatini yangilash
         var patients = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
-        PatientsDataGrid.ItemsSource = patients;
+
+        // Har bir bemorning ism-sharifini katta harflarga o'tkazamiz
+        var capitalizedPatients = patients.Select(p =>
+        {
+         
+            if (p.FirstName != null)
+            {
+                p.FirstName = p.FirstName.ToUpper();
+            }
+            if (p.LastName != null)
+            {
+                p.LastName = p.LastName.ToUpper();
+            }
+            if (p.Address != null)
+            {
+                p.Address = p.Address.ToUpper();
+            }
+            return p;
+        }).ToList();
+
+        // Yangilangan ro'yxatni DataGrid'ga yuklaymiz
+        PatientsDataGrid.ItemsSource = capitalizedPatients;
     }
 
     private void ShowPrescriptionsView()
@@ -210,9 +232,9 @@ public partial class MainWindow : Window
         {
             var patient = new Patient
             {
-                FirstName = tbFirstName.Text.Trim(),
-                LastName = tbLastName.Text.Trim(),
-                Address = tbAddress.Text.Trim(),
+                FirstName = tbFirstName.Text.ToUpper().Trim(),
+                LastName = tbLastName.Text.ToUpper().Trim(),
+                Address = tbAddress.Text.ToUpper().Trim(),
                 PhoneNumber = tbPhone.Text.Trim(),
                 DateOfBirth = birthDate,
                 CreatedAt = DateTime.Now
