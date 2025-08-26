@@ -241,7 +241,7 @@
                                     </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
                                     <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
-                                    <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth}" Width="*"/>
+                                    <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth,StringFormat='dd.MM.yyyy'}" Width="*"/>
                                     <DataGridTextColumn Header="Manzili" Binding="{Binding Address}" Width="*"/>
                                     <DataGridTextColumn Header="Telefoni" Binding="{Binding PhoneNumber}" Width="*"/>
                                     <DataGridTemplateColumn Header="Amallar" Width="Auto">

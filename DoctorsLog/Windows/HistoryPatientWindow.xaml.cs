@@ -31,11 +31,20 @@ public partial class HistoryPatientWindow : Window
 
     public void LoadPatientData()
     {
-        tbFirstName.Text = patient.FirstName;
-        tbLastName.Text = patient.LastName;
+        tbFirstName.Text = patient.FirstName.ToUpper();
+        tbLastName.Text = patient.LastName.ToUpper();
         tbBithday.Text = $"{patient.DateOfBirth:dd.MM.yyyy}";
-        tbAddress.Text = patient.Address;
+        tbAddress.Text = patient.Address.ToUpper();
         tbPhone.Text = patient.PhoneNumber;
+        var recipesForGrid = recipes.Select(r => new
+        {
+            r.Id,
+            r.CreatedAt,
+            r.Type,
+            r.Content,
+            // "Retsept nomi" uchun Content'ning bir qismini olamiz
+            Title = r.Content?.Length > 30 ? r.Content.Substring(0, 30) + "..." : r.Content
+        }).ToList();
 
         HistoryDataGrid.ItemsSource = recipes;
     }
