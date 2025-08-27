@@ -2,8 +2,8 @@
 
 using DoctorsLog.Entities;
 using DoctorsLog.Services;
-using Microsoft.EntityFrameworkCore;
 using System.Windows.Controls;
+using Microsoft.EntityFrameworkCore;
 
 public partial class Dashboard : Page
 {

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DoctorsLog.Windows"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="HistoryPatientWindow" Height="600" Width="900"
+        Title="Bemorning muolaja tarixi oynasi" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -39,31 +39,34 @@
 
             <!-- DataGrid -->
             <Border x:Name="HistoryDataGridBorder"
-    CornerRadius="10"
-    Padding="15"
-    Background="#FFFFFF"
-    BorderBrush="#D3DDE6"
-    BorderThickness="1">
+                    CornerRadius="10"
+                    Padding="15"
+                    Background="#FFFFFF"
+                    BorderBrush="#D3DDE6"
+                    BorderThickness="1">        
                 <DataGrid x:Name="HistoryDataGrid"
-          AutoGenerateColumns="False"
-          IsReadOnly="True"
-          HeadersVisibility="Column"
-          GridLinesVisibility="Horizontal"
-          RowBackground="#F9F9F9"
-          AlternatingRowBackground="#F0F0F0"
-          BorderThickness="0">
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowBackground="#F9F9F9"
+                          AlternatingRowBackground="#F0F0F0"
+                          BorderThickness="0">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="T/r" Binding="{Binding Id}" Width="50"/>
                         <DataGridTextColumn Header="Retsept sanasi" Binding="{Binding CreatedAt, StringFormat='yyyy-MM-dd HH:mm'}" Width="200"/>
                         <DataGridTemplateColumn Header="Retsep nomi" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button x:Name="btnWroteHistoryRetsep" Content="{Binding Title}"
-                                            Click="RecipeNameButton_Click" Foreground="Red"
-                                            Tag="{Binding Id}"/>
+                                    <Button Content="{Binding Path=Title}" 
+                                            Tag="{Binding Id}" 
+                                            Click="RecipeNameButton_Click" 
+                                            Foreground="Red"
+                                            Padding="0"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>

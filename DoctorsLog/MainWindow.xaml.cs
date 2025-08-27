@@ -1,14 +1,13 @@
-﻿using DoctorsLog.Entities;
+﻿using System.Windows;
 using DoctorsLog.Pages;
-using DoctorsLog.Services;
 using DoctorsLog.Windows;
-using Microsoft.EntityFrameworkCore;
+using DoctorsLog.Entities;
+using DoctorsLog.Services;
 using System.Globalization;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Controls;
+using Microsoft.EntityFrameworkCore;
 using System.Windows.Media.Animation;
 
 namespace DoctorsLog;
@@ -289,27 +288,103 @@ public partial class MainWindow : Window
 
     private async void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
-        string query = tbSearch.Text.Trim();
-        var filtered = await SearchPatientsAsync(query);
-        PatientsDataGrid.ItemsSource = filtered;
+        // Debounce qo'shamiz (500ms)
+        var text = tbSearch.Text.Trim();
+
+        // Oldingi taskni bekor qilish
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(500, _searchCts.Token);
+            var filtered = await SearchPatientsAsync(text);
+            PatientsDataGrid.ItemsSource = filtered;
+        }
+        catch (TaskCanceledException)
+        {
+            // Yangi qidiruv boshlandi, eski bekor qilindi
+        }
     }
+
+    private CancellationTokenSource _searchCts;
 
     private async Task<List<Patient>> SearchPatientsAsync(string query)
     {
-        var loweredQuery = query.ToLower();
+        var allPatients = await db.Patients.AsNoTracking().ToListAsync();
 
-        if (string.IsNullOrEmpty(loweredQuery))
-            return await db.Patients.ToListAsync();
+        if (string.IsNullOrEmpty(query))
+            return allPatients;
 
-        return await db.Patients
-            .Where(p =>
-                p.FirstName.ToLower().Contains(loweredQuery) ||
-                p.PhoneNumber.ToLower().Contains(loweredQuery) ||
-                p.LastName.ToLower().Contains(loweredQuery) ||
-                p.Address.ToLower().Contains(loweredQuery) ||
-                p.DateOfBirth.ToString().Contains(loweredQuery)
-            ).ToListAsync();
+        var loweredQuery = query.ToLowerInvariant();
+        var latinToCyrillic = ToCyrillic(loweredQuery);
+        var cyrillicToLatin = ToLatin(loweredQuery);
+
+        return allPatients.Where(p =>
+            ContainsAny(p.FirstName, loweredQuery, latinToCyrillic, cyrillicToLatin) ||
+            ContainsAny(p.LastName, loweredQuery, latinToCyrillic, cyrillicToLatin) ||
+            ContainsAny(p.PhoneNumber, loweredQuery, latinToCyrillic, cyrillicToLatin) ||
+            ContainsAny(p.Address, loweredQuery, latinToCyrillic, cyrillicToLatin)
+        ).ToList();
     }
+
+    private bool ContainsAny(string text, params string[] terms)
+    {
+        if (string.IsNullOrEmpty(text)) return false;
+
+        var lowerText = text.ToLowerInvariant();
+        return terms.Any(term => lowerText.Contains(term));
+    }
+    // Lotin → Kirill transliteratsiya (yaxshilangan)
+    private string ToCyrillic(string input)
+    {
+        var result = input;
+
+        // Birikmalar birinchi
+        result = result
+            .Replace("g'", "ғ").Replace("o'", "ў")
+            .Replace("sh", "ш").Replace("ch", "ч")
+            .Replace("yo", "ё").Replace("ya", "я").Replace("yu", "ю").Replace("ye", "е");
+
+        // Yakka harflar
+        result = result
+            .Replace("a", "а").Replace("b", "б").Replace("d", "д")
+            .Replace("e", "е").Replace("f", "ф").Replace("g", "г")
+            .Replace("h", "ҳ").Replace("i", "и").Replace("j", "ж")
+            .Replace("k", "к").Replace("l", "л").Replace("m", "м")
+            .Replace("n", "н").Replace("o", "о").Replace("p", "п")
+            .Replace("q", "қ").Replace("r", "р").Replace("s", "с")
+            .Replace("t", "т").Replace("u", "у").Replace("v", "в")
+            .Replace("x", "х").Replace("y", "й").Replace("z", "з");
+
+        return result;
+    }
+
+    // Kirill → Lotin transliteratsiya (yaxshilangan)
+    private string ToLatin(string input)
+    {
+        var result = input;
+
+        // Birikmalar birinchi
+        result = result
+            .Replace("ғ", "g'").Replace("ў", "o'")
+            .Replace("ш", "sh").Replace("ч", "ch")
+            .Replace("ё", "yo").Replace("я", "ya").Replace("ю", "yu").Replace("е", "e");
+
+        // Yakka harflar
+        result = result
+            .Replace("а", "a").Replace("б", "b").Replace("д", "d")
+            .Replace("ф", "f").Replace("г", "g").Replace("ҳ", "h")
+            .Replace("и", "i").Replace("ж", "j").Replace("к", "k")
+            .Replace("л", "l").Replace("м", "m").Replace("н", "n")
+            .Replace("о", "o").Replace("п", "p").Replace("қ", "q")
+            .Replace("р", "r").Replace("с", "s").Replace("т", "t")
+            .Replace("у", "u").Replace("в", "v").Replace("х", "x")
+            .Replace("й", "y").Replace("з", "z");
+
+        return result;
+    }   
+
 
     private void PatientsDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
     {
@@ -364,7 +439,7 @@ public partial class MainWindow : Window
     {
         if (PatientsDataGrid.SelectedItem is Patient selectedPatient)
         {
-            new HistoryPatientWindow(db, selectedPatient).Show();
+            new HistoryPatientWindow(db, selectedPatient).ShowDialog();
         }
     }
 }

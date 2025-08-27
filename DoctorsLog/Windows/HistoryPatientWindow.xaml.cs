@@ -1,9 +1,10 @@
-﻿using DoctorsLog.Entities;
+﻿using System.Windows;
 using DoctorsLog.Pages;
 using DoctorsLog.Services;
-using Microsoft.EntityFrameworkCore;
-using System.Windows;
+using DoctorsLog.Entities;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using Microsoft.EntityFrameworkCore;
 
 namespace DoctorsLog.Windows;
 
@@ -36,17 +37,18 @@ public partial class HistoryPatientWindow : Window
         tbBithday.Text = $"{patient.DateOfBirth:dd.MM.yyyy}";
         tbAddress.Text = patient.Address.ToUpper();
         tbPhone.Text = patient.PhoneNumber;
-        var recipesForGrid = recipes.Select(r => new
+        var recipesForGrid = recipes.Select(r => new RecipeGridModel
         {
-            r.Id,
-            r.CreatedAt,
-            r.Type,
-            r.Content,
-            // "Retsept nomi" uchun Content'ning bir qismini olamiz
-            Title = r.Content?.Length > 30 ? r.Content.Substring(0, 30) + "..." : r.Content
+            Id = r.Id,
+            CreatedAt = r.CreatedAt,
+            Type = r.Type,
+            Content = r.Content,
+            Title = !string.IsNullOrEmpty(r.Content) && r.Content.Length > 30
+             ? r.Content.Substring(0, 30).Trim() + "..."
+             : r.Content.Trim(),
         }).ToList();
 
-        HistoryDataGrid.ItemsSource = recipes;
+        HistoryDataGrid.ItemsSource = recipesForGrid;
     }
 
     // Retsept nomini bosganda ishlaydigan hodisa
@@ -60,10 +62,85 @@ public partial class HistoryPatientWindow : Window
         if (recipe != null)
         {
             string fullrecipe = $"Retsept nomi: {recipe.Type}\n" +
-                                 $"Sanasi: {recipe.CreatedAt:dd.MM.yyyy HH:mm}\n\n" +
-                                 $"{recipe.Content}";
+                               $"Sanasi: {recipe.CreatedAt:dd.MM.yyyy HH:mm}\n\n" +
+                               $"{recipe.Content}";
 
-            MessageBox.Show(fullrecipe, "Retsept to'liq matni", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Maxsus dialog oynasi yaratish
+            Window dialog = new Window
+            {
+                Title = "Retsept to'liq matni",
+                Width = 800,
+                Height = 800,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.CanResize
+            };
+
+            Grid grid = new Grid();
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            // ScrollViewer bilan TextBlock
+            ScrollViewer scrollViewer = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Margin = new Thickness(10)
+            };
+            TextBlock textBlock = new TextBlock
+            {
+                Text = fullrecipe,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(5),
+                FontSize = 14
+            };
+            scrollViewer.Content = textBlock;
+            Grid.SetRow(scrollViewer, 0);
+
+            // Tugmalar paneli
+            StackPanel buttonPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(10)
+            };
+
+            // Pechat tugmasi
+            Button printButton = new Button
+            {
+                Content = "Pechat",
+                Margin = new Thickness(0, 0, 10, 0),
+                Padding = new Thickness(10, 5, 10, 5)
+            };
+            printButton.Click += (s, args) =>
+            {
+                PrintDialog printDialog = new PrintDialog();
+                if (printDialog.ShowDialog() == true)
+                {
+                    FlowDocument document = new FlowDocument();
+                    Paragraph paragraph = new Paragraph(new Run(fullrecipe));
+                    document.Blocks.Add(paragraph);
+
+                    IDocumentPaginatorSource paginator = document;
+                    printDialog.PrintDocument(paginator.DocumentPaginator, "Retsept");
+                }
+            };
+
+            // OK tugmasi
+            Button okButton = new Button
+            {
+                Content = "OK",
+                Padding = new Thickness(10, 5, 10, 5)
+            };
+            okButton.Click += (s, args) => dialog.Close();
+
+            buttonPanel.Children.Add(printButton);
+            buttonPanel.Children.Add(okButton);
+            Grid.SetRow(buttonPanel, 1);
+
+            grid.Children.Add(scrollViewer);
+            grid.Children.Add(buttonPanel);
+            dialog.Content = grid;
+            dialog.ShowDialog();
         }
     }
 
@@ -86,5 +163,14 @@ public partial class HistoryPatientWindow : Window
     private void PrintButton_Click(object sender, RoutedEventArgs e)
     {
         // Pechat logikasi...
+    }
+
+    public class RecipeGridModel
+    {
+        public long Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string Type { get; set; }
+        public string Content { get; set; }
+        public string Title { get; set; }
     }
 }
