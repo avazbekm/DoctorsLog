@@ -1,12 +1,12 @@
-﻿using System.IO;
-using System.Windows;
-using DoctorsLog.Windows;
-using DoctorsLog.Entities;
+﻿using DoctorsLog.Entities;
 using DoctorsLog.Services;
-using System.Windows.Input;
+using DoctorsLog.Windows;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using Microsoft.EntityFrameworkCore;
+using System.Windows.Input;
 
 namespace DoctorsLog.Pages
 {
@@ -159,7 +159,7 @@ namespace DoctorsLog.Pages
         {
             Recipe recipe = new()
             {
-                Type = (RecipesComboBox.SelectedValue as string)!??"янги муолажа",
+                Type = (RecipesComboBox.SelectedValue as string)! ?? "янги муолажа",
                 Content = new TextRange(RichTextEditor.Document.ContentStart, RichTextEditor.Document.ContentEnd).Text,
                 CreatedAt = DateTime.Now,
                 PatientId = patient.Id

@@ -1,10 +1,10 @@
-﻿using System.Windows;
+﻿using DoctorsLog.Entities;
 using DoctorsLog.Pages;
 using DoctorsLog.Services;
-using DoctorsLog.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using Microsoft.EntityFrameworkCore;
 
 namespace DoctorsLog.Windows;
 

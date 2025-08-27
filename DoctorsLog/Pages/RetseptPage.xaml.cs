@@ -1,12 +1,12 @@
 ﻿namespace DoctorsLog.Pages;
 
-using System.Windows;
-using DoctorsLog.Windows;
 using DoctorsLog.Entities;
 using DoctorsLog.Services;
-using System.Windows.Input;
+using DoctorsLog.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 
 public partial class RetseptPage : Page
 {
@@ -236,5 +236,10 @@ public partial class RetseptPage : Page
         btnRecipeAction.Content = "Yaratish";
         btnRecipeAction.Visibility = Visibility.Visible;
         RecipesComboBox.SelectedItem = null;
+    }
+
+    private void Separator_ColorChanged(object sender, RoutedPropertyChangedEventArgs<System.Windows.Media.Color> e)
+    {
+
     }
 }

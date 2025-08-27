@@ -1,13 +1,13 @@
-﻿using System.Windows;
+﻿using DoctorsLog.Entities;
 using DoctorsLog.Pages;
-using DoctorsLog.Windows;
-using DoctorsLog.Entities;
 using DoctorsLog.Services;
+using DoctorsLog.Windows;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using System.Windows.Media.Animation;
 
 namespace DoctorsLog;
@@ -110,7 +110,7 @@ public partial class MainWindow : Window
         // Har bir bemorning ism-sharifini katta harflarga o'tkazamiz
         var capitalizedPatients = patients.Select(p =>
         {
-         
+
             if (p.FirstName != null)
             {
                 p.FirstName = p.FirstName.ToUpper();
@@ -383,7 +383,7 @@ public partial class MainWindow : Window
             .Replace("й", "y").Replace("з", "z");
 
         return result;
-    }   
+    }
 
 
     private void PatientsDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
