@@ -1,12 +1,12 @@
 ﻿namespace DoctorsLog.Pages;
 
+using System.Windows;
+using DoctorsLog.Windows;
 using DoctorsLog.Entities;
 using DoctorsLog.Services;
-using DoctorsLog.Windows;
-using System.Windows;
+using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Windows.Input;
 
 public partial class RetseptPage : Page
 {

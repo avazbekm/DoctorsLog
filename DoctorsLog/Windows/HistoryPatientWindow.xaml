@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DoctorsLog.Windows"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="HistoryPatientWindow" Height="600" Width="900"
+        Title="Bemorning muolaja tarixi oynasi" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>

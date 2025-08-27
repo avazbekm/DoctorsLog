@@ -1,14 +1,13 @@
-﻿using DoctorsLog.Entities;
+﻿using System.Windows;
 using DoctorsLog.Pages;
-using DoctorsLog.Services;
 using DoctorsLog.Windows;
-using Microsoft.EntityFrameworkCore;
+using DoctorsLog.Entities;
+using DoctorsLog.Services;
 using System.Globalization;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Controls;
+using Microsoft.EntityFrameworkCore;
 using System.Windows.Media.Animation;
 
 namespace DoctorsLog;

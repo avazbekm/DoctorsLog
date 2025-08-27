@@ -1,9 +1,9 @@
 ﻿namespace DoctorsLog.Services;
 
-using DoctorsLog.Entities;
-using Microsoft.EntityFrameworkCore;
 using System.IO;
+using DoctorsLog.Entities;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 class AppDbContext : DbContext, IAppDbContext
 {
