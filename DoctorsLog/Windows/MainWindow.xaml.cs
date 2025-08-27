@@ -1,4 +1,6 @@
-﻿using DoctorsLog.Entities;
+﻿namespace DoctorsLog;
+
+using DoctorsLog.Entities;
 using DoctorsLog.Pages;
 using DoctorsLog.Services.Persistence;
 using DoctorsLog.Windows;
@@ -10,8 +12,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
-namespace DoctorsLog;
-
 public partial class MainWindow : Window
 {
     private Grid patientsView;
@@ -22,8 +22,6 @@ public partial class MainWindow : Window
     public MainWindow(IAppDbContext db)
     {
         InitializeComponent();
-
-        // XAML'dagi 'PatientsView' ni MainContentControl dan olib olamiz
         patientsView = (Grid)MainContentControl.Content;
 
         this.db = db;

@@ -1,6 +1,6 @@
-﻿using DoctorsLog.Entities;
+﻿namespace DoctorsLog.Services.GoogleServices;
 
-namespace DoctorsLog.Services.GoogleServices;
+using DoctorsLog.Entities;
 
 public class GoogleSheetsService(string spreadsheetId, string apiKey) : IGoogleSheetsService
 {
