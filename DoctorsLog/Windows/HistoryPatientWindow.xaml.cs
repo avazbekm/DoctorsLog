@@ -1,6 +1,6 @@
 ﻿using DoctorsLog.Entities;
 using DoctorsLog.Pages;
-using DoctorsLog.Services;
+using DoctorsLog.Services.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using System.Windows.Controls;

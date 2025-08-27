@@ -1,6 +1,6 @@
 ﻿using DoctorsLog.Entities;
 using DoctorsLog.Pages;
-using DoctorsLog.Services;
+using DoctorsLog.Services.Persistence;
 using DoctorsLog.Windows;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -19,14 +19,14 @@ public partial class MainWindow : Window
     private long? editingPatientId = null;
 
 #nullable disable
-    public MainWindow()
+    public MainWindow(IAppDbContext db)
     {
         InitializeComponent();
 
         // XAML'dagi 'PatientsView' ni MainContentControl dan olib olamiz
         patientsView = (Grid)MainContentControl.Content;
 
-        db = new AppDbContext();
+        this.db = db;
 
         MainContentControl.DataContext = db;
         MainContentControl.Content = new Frame

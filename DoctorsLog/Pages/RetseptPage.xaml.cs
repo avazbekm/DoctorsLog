@@ -1,7 +1,7 @@
 ﻿namespace DoctorsLog.Pages;
 
 using DoctorsLog.Entities;
-using DoctorsLog.Services;
+using DoctorsLog.Services.Persistence;
 using DoctorsLog.Windows;
 using System.Windows;
 using System.Windows.Controls;
