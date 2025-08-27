@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /DoctorsLog/Services/Migrations
 /DoctorsLog/Migrations
+/DoctorsLog/Services/Persistence/Migrations
