@@ -39,8 +39,8 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
             db.Subscriptions.Add(sb);
             await db.SaveAsync();
 
-            if (GetIsInternetAvailable())
-                sheetsService.UploadSubscription(sb);
+            //if (GetIsInternetAvailable())
+            //    sheetsService.UploadSubscription(sb);
         }
 
         HandleSubscriptionExpirationAsync(sb);
