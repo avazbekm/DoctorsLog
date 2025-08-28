@@ -25,13 +25,16 @@ public class LicenseValidator
             bool valid = rsa.VerifyData(payloadBytes, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             if (!valid) return false;
 
-            var segments = payload.Split(':');
+            var segments = payload.Split('/');
             if (segments.Length != 2) return false;
 
             if (segments[0] != deviceId) return false;
 
-            int days = int.Parse(segments[1]);
-            endDate = DateTime.Now.AddDays(days);
+            if (!DateTime.TryParse(segments[1], null, System.Globalization.DateTimeStyles.RoundtripKind, out endDate))
+                return false;
+
+            if (DateTime.UtcNow > endDate)
+                return false;
 
             return true;
         }

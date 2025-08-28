@@ -1,8 +1,8 @@
 ﻿namespace DoctorsLog;
 
-using DoctorsLog.Services;
 using DoctorsLog.Services.GoogleServices;
 using DoctorsLog.Services.Persistence;
+using DoctorsLog.Services.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
 

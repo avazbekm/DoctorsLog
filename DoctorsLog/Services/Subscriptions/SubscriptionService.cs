@@ -1,4 +1,4 @@
-﻿namespace DoctorsLog.Services;
+﻿namespace DoctorsLog.Services.Subscriptions;
 
 using DoctorsLog.Entities;
 using DoctorsLog.Services.Persistence;

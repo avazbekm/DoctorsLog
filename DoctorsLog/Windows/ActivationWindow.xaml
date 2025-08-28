@@ -49,7 +49,8 @@
                      md:HintAssist.Hint="Token kiriting"
                      Margin="0,0,10,0"
                      Width="300"
-                     DockPanel.Dock="Left"/>
+                     DockPanel.Dock="Left"
+                     md:HintAssist.Foreground="Gray"/>
             <Button x:Name="ActivateButton"
                     Content="Aktivatsiya"
                     Click="Activate_Click"
@@ -78,7 +79,7 @@
                        FontSize="13"
                        TextAlignment="Center"/>
             <TextBlock>
-                <Hyperlink NavigateUri="https://t.me/@ovoza_robot"
+                <Hyperlink NavigateUri="t.me/@ovoza_robot"
                            RequestNavigate="Hyperlink_RequestNavigate">
                     🤖 Telegram bot: @ovoza_robot
                 </Hyperlink>

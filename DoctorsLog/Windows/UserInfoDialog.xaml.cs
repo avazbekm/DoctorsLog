@@ -18,10 +18,9 @@ public partial class UserInfoDialog : Window
         string fullName = FullNameTextBox.Text.Trim();
         string email = EmailTextBox.Text.Trim();
 
-        // Majburiy tekshiruvlar
         if (string.IsNullOrWhiteSpace(fullName))
         {
-            MessageBox.Show("Iltimos, F.I.O kiriting!", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Iltimos, F.I.Sh kiriting!", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 

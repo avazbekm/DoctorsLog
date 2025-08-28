@@ -99,13 +99,10 @@ public partial class MainWindow : Window
 
     private async void ShowPatientsView()
     {
-        // MainContentControl'ga bemorlar view'ini yuklaymiz
         MainContentControl.Content = patientsView;
 
-        // Bemorlar ro'yxatini yangilash
         var patients = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
 
-        // Har bir bemorning ism-sharifini katta harflarga o'tkazamiz
         var capitalizedPatients = patients.Select(p =>
         {
 
