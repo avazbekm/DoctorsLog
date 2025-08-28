@@ -40,11 +40,11 @@ namespace DoctorsLog.Pages
             {
                 FontSizeComboBox.Items.Add(size);
             }
-            FontSizeComboBox.SelectedItem = 14.0;
+            FontSizeComboBox.SelectedItem = 20.0;
 
             RichTextEditor.Document.Blocks.Clear();
             var paragraph = new Paragraph();
-            var run = new Run("") { FontSize = 14.0 };
+            var run = new Run("") { FontSize = 20.0 };
             paragraph.Inlines.Add(run);
             RichTextEditor.Document.Blocks.Add(paragraph);
             RichTextEditor.CaretPosition = run.ElementStart;
@@ -190,7 +190,7 @@ namespace DoctorsLog.Pages
                 };
                 doc.ColumnWidth = doc.PageWidth - doc.PagePadding.Left - doc.PagePadding.Right;
                 doc.FontFamily = new System.Windows.Media.FontFamily("Times New Roman");
-                doc.FontSize = 12;
+                doc.FontSize = 20;
 
                 // Rekvizitlar uchun ikki ustunli jadval yaratamiz
                 Table rekvizitTable = new();
@@ -222,7 +222,7 @@ namespace DoctorsLog.Pages
                 // Chap hujayraga matnni joylashtiramiz
                 Paragraph leftParagraph = new Paragraph(new Run(leftRekvizit))
                 {
-                    FontSize = 14,
+                    FontSize = 16,
                     TextAlignment = TextAlignment.Left,
                     LineHeight = 14
                 };
@@ -233,7 +233,7 @@ namespace DoctorsLog.Pages
                 // O'ng hujayraga matnni joylashtiramiz
                 Paragraph rightParagraph = new Paragraph(new Run(rightRekvizit))
                 {
-                    FontSize = 14,
+                    FontSize = 16,
                     TextAlignment = TextAlignment.Right,
                     LineHeight = 14
                 };
