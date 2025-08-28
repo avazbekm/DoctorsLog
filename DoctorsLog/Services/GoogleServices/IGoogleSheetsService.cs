@@ -1,4 +1,4 @@
-﻿namespace DoctorsLog.Services;
+﻿namespace DoctorsLog.Services.GoogleServices;
 
 using DoctorsLog.Entities;
 

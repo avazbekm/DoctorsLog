@@ -1,6 +1,7 @@
 ﻿namespace DoctorsLog.Services.Subscriptions;
 
 using DoctorsLog.Entities;
+using DoctorsLog.Services.GoogleServices;
 using DoctorsLog.Services.Persistence;
 using DoctorsLog.Windows;
 using System.Management;

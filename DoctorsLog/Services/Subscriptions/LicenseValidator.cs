@@ -5,11 +5,10 @@ using System.Text;
 
 public class LicenseValidator
 {
-    private const string RSApublic = @"<RSAKeyValue><Modulus>y0DBIG5m4IsMaBaDmtvaP2fjAVphtywknErZ3sVyyjEuCBePQj23nQvUUE9FGM6JsoVTOXlDUnzZthXJ61n2K5mj7nneH6Gq5X/UsX8mDxu5WooAdIkduBFTirMyjHjn284jPHVomFVao9/cAJfgEMq1ZXQgrr8nuB1GaU1i/tpHTlH9QcPZiMmUGdeg83VaCI50PTU1MEMU9HoHru3cZ+o7XcsHFngJQ/xd+g4gT41CDPH1/+JpYKHpyzykdBGRQXXvx3aIG4x63astQlPFz6st7a+eu0C58GRxbl5lSjeqy0Z01mZTxNUuIT7RyeIBzRjbVn4CelNicfhk8JAJQQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
-
     public static bool TryValidateToken(string token, string deviceId, out DateTime endDate)
     {
         endDate = DateTime.MinValue;
+        string RSApublic = App.Config["PublicKey"]!;
 
         try
         {
