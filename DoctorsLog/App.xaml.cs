@@ -18,12 +18,13 @@ public partial class App : Application
 
         Config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.Development.json", optional: true)
                 .Build();
 
         Db = new AppDbContext();
         ((AppDbContext)Db).Database.Migrate();
 
-        var sh = new GoogleSheetsService("spreadsheetId", "apiKey");
+        var sh = new GoogleSheetsService(Config);
         var ss = new SubscriptionService(Db, sh);
 
         var mainWindow = new MainWindow(Db, ss);

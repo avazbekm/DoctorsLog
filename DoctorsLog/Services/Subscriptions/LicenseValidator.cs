@@ -8,7 +8,7 @@ public class LicenseValidator
     public static bool TryValidateToken(string token, string deviceId, out DateTime endDate)
     {
         endDate = DateTime.MinValue;
-        string RSApublic = App.Config["PublicKey"]!;
+        string RSApublic = App.Config!["PublicKey"]!;
 
         try
         {

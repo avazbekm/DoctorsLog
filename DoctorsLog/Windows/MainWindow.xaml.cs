@@ -42,10 +42,10 @@ public partial class MainWindow : Window
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         sb = await ss.InitializeSubscriptionAsync();
-        StartWarningCycle();
+        ShowNaigationInfo();
     }
 
-    private async void StartWarningCycle()
+    private async void ShowNaigationInfo()
     {
         if (sb.EndDate <= DateTime.Now) return;
 
@@ -398,8 +398,6 @@ public partial class MainWindow : Window
             }
     }
 
-
-
     private async void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
         // Debounce qo'shamiz (500ms)
@@ -449,7 +447,7 @@ public partial class MainWindow : Window
         var lowerText = text.ToLowerInvariant();
         return terms.Any(term => lowerText.Contains(term));
     }
-    // Lotin → Kirill transliteratsiya (yaxshilangan)
+
     private static string ToCyrillic(string input)
     {
         var result = input;
@@ -474,18 +472,15 @@ public partial class MainWindow : Window
         return result;
     }
 
-    // Kirill → Lotin transliteratsiya (yaxshilangan)
     private static string ToLatin(string input)
     {
         var result = input;
 
-        // Birikmalar birinchi
         result = result
             .Replace("ғ", "g'").Replace("ў", "o'")
             .Replace("ш", "sh").Replace("ч", "ch")
             .Replace("ё", "yo").Replace("я", "ya").Replace("ю", "yu").Replace("е", "e");
 
-        // Yakka harflar
         result = result
             .Replace("а", "a").Replace("б", "b").Replace("д", "d")
             .Replace("ф", "f").Replace("г", "g").Replace("ҳ", "h")
@@ -498,7 +493,6 @@ public partial class MainWindow : Window
 
         return result;
     }
-
 
     private void PatientsDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
     {

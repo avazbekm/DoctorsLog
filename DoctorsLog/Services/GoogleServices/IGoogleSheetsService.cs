@@ -4,6 +4,8 @@ using DoctorsLog.Entities;
 
 public interface IGoogleSheetsService
 {
-    void UploadSubscription(Subscription subscription);
-    Subscription? GetSubscription(string deviceId);
+    Task<List<Subscription>> GetAllSubscriptionsAsync();
+    Task<Subscription?> GetSubscriptionAsync(string deviceId);
+    Task UploadSubscriptionAsync(Subscription subscription);
+    Task UpdateSubscriptionAsync(Subscription subscription);
 }

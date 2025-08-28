@@ -13,46 +13,99 @@ using System.Windows;
 public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsService)
 {
     private const int TrialDays = 90;
+    private Subscription sb = default!;
 
     public async Task<Subscription> InitializeSubscriptionAsync()
     {
-        string deviceId = GetDeviceUniqueId();
-        var sb = GetLocalSubscription(deviceId);
+        sb = GetLocalSubscription()!;
 
         if (sb is null)
         {
-            var (FullName, Email) = GetShowUserInfoDialog();
-            var manufacturer = GetWmiValue("Win32_ComputerSystem", "manufacturer");
-            var model = GetWmiValue("Win32_ComputerSystem", "Model");
-            sb = new Subscription
+            if (GetIsInternetAvailable())
             {
-                DeviceId = deviceId,
-                MachineName = Environment.MachineName,
-                Manufacturer = manufacturer,
-                Model = model,
-                OwnerFullName = FullName,
-                OwnerEmail = Email,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(TrialDays),
-                IsActive = false,
-                LastSync = null
-            };
+                (sb ??= new()).DeviceId = GetDeviceUniqueId();
+                var cloudSub = await sheetsService.GetSubscriptionAsync(sb.DeviceId);
 
-            db.Subscriptions.Add(sb);
-            await db.SaveAsync();
-
-            //if (GetIsInternetAvailable())
-            //    sheetsService.UploadSubscription(sb);
+                if (cloudSub is not null)
+                {
+                    sb = cloudSub;
+                    db.Subscriptions.Add(sb);
+                    await db.SaveAsync();
+                }
+                else
+                {
+                    await GenerateInitialSubscription();
+                }
+            }
+            else
+            {
+                await GenerateInitialSubscription();
+            }
         }
 
+        await SynchronizeToCloud();
         await HandleSubscriptionExpirationAsync(sb);
         return sb;
     }
 
-    #region Private Helpers
+    private async Task GenerateInitialSubscription()
+    {
+        sb.DeviceId = GetDeviceUniqueId();
 
-    private Subscription GetLocalSubscription(string deviceId)
-        => db.Subscriptions.FirstOrDefault(s => s.DeviceId == deviceId)!;
+        var (fullName, email) = GetShowUserInfoDialog();
+        sb.MachineName = Environment.MachineName;
+        sb.Manufacturer = GetWmiValue("Win32_ComputerSystem", "Manufacturer");
+        sb.Model = GetWmiValue("Win32_ComputerSystem", "Model");
+        sb.OwnerFullName = fullName;
+        sb.OwnerEmail = email;
+        sb.CreatedAt = DateTime.Now;
+        sb.StartDate = DateTime.Now;
+        sb.EndDate = DateTime.Now.AddDays(TrialDays);
+        sb.LastSync = DateTime.Now;
+
+        db.Subscriptions.Add(sb);
+        await db.SaveAsync();
+    }
+
+    private async Task SynchronizeToCloud()
+    {
+        if (!GetIsInternetAvailable())
+            return;
+
+        var cloudSub = await sheetsService.GetSubscriptionAsync(sb.DeviceId);
+
+        if (cloudSub is null)
+        {
+            await sheetsService.UploadSubscriptionAsync(sb);
+        }
+        else
+        {
+            sb.OwnerFullName = cloudSub.OwnerFullName;
+            sb.OwnerEmail = cloudSub.OwnerEmail;
+            sb.StartDate = cloudSub.StartDate;
+            sb.EndDate = cloudSub.EndDate;
+            sb.IsActive = cloudSub.IsActive;
+            sb.LastSync = DateTime.Now;
+        }
+
+        await db.SaveAsync();
+    }
+
+    private Subscription? GetLocalSubscription()
+        => db.Subscriptions.OrderByDescending(s => s.CreatedAt).FirstOrDefault();
+
+    private async Task HandleSubscriptionExpirationAsync(Subscription subscription)
+    {
+        if (DateTime.Now < subscription.EndDate)
+            return;
+
+        subscription.IsActive = false;
+        await db.SaveAsync();
+
+        var window = new ActivationWindow(db, this, sb);
+        window.ShowDialog();
+        Application.Current.Shutdown();
+    }
 
     private static (string FullName, string Email) GetShowUserInfoDialog()
     {
@@ -66,18 +119,6 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
             Application.Current.Shutdown();
             return (string.Empty, string.Empty);
         }
-    }
-
-    private async Task HandleSubscriptionExpirationAsync(Subscription subscription)
-    {
-        if (DateTime.Now < subscription.EndDate)
-            return;
-
-        var window = new ActivationWindow(db, subscription);
-        window.ShowDialog();
-        Application.Current.Shutdown();
-        subscription.IsActive = false;
-        await db.SaveAsync();
     }
 
     public static string GetDeviceUniqueId()
@@ -113,6 +154,4 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
             return false;
         }
     }
-
-    #endregion
 }
