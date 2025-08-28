@@ -13,10 +13,11 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
 {
     private const int TrialDays = 90;
 
-    public async Task InitializeSubscriptionAsync()
+    public async Task<Subscription> InitializeSubscriptionAsync()
     {
         string deviceId = GetDeviceUniqueId();
         var sb = GetLocalSubscription(deviceId);
+
         if (sb is null)
         {
             var (FullName, Email) = GetShowUserInfoDialog();
@@ -43,8 +44,8 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
             //    sheetsService.UploadSubscription(sb);
         }
 
-        HandleSubscriptionExpirationAsync(sb);
-        ShowExpirationWarning(sb);
+        await HandleSubscriptionExpirationAsync(sb);
+        return sb;
     }
 
     #region Private Helpers
@@ -66,19 +67,7 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
         }
     }
 
-    private static void ShowExpirationWarning(Subscription subscription)
-    {
-        var daysLeft = (subscription.EndDate - DateTime.Now).TotalDays;
-        if (daysLeft <= 30 && daysLeft > 0)
-            ShowTopBarWarning($"Obuna muddati tugashiga {Math.Ceiling(daysLeft)} kun qoldi. Iltimos, obuna sotib oling.");
-
-        static void ShowTopBarWarning(string message)
-        {
-            // Hoshida ogohlantirish chiqarish logikasi
-        }
-    }
-
-    private async void HandleSubscriptionExpirationAsync(Subscription subscription)
+    private async Task HandleSubscriptionExpirationAsync(Subscription subscription)
     {
         if (DateTime.Now < subscription.EndDate)
             return;
@@ -122,25 +111,6 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
         {
             return false;
         }
-    }
-
-    #endregion
-
-    #region Offline Activation Token
-    public string GenerateActivationToken(Subscription subscription)
-    {
-        // DeviceId + EndDate → hash + encryption
-        string input = $"{subscription.DeviceId}:{subscription.EndDate:yyyy-MM-dd}";
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
-        return Convert.ToBase64String(hash);
-    }
-
-    public bool ActivateSubscriptionFromToken(string token)
-    {
-        // Tokenni qabul qilish
-        // Inputdagi tokenni decrypt qilib EndDate va subscriptionni yangilash
-        // Agar mos kelsa, subscriptionni aktiv qiladi va dastur qayta ishga tushadi
-        return true;
     }
 
     #endregion

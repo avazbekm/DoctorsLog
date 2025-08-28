@@ -16,23 +16,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#8BA8C8" Padding="10">
-            <DockPanel>
-                <!-- Chap tomonda logotip yoki bo'sh joy -->
-                <TextBlock
-                   FontSize="18"
+        <Border Grid.Row="0" Background="#8BA8C8">
+            <Canvas x:Name="WarningCanvas" ClipToBounds="True">
+                <TextBlock x:Name="WarningText"
+                   FontSize="16"
                    FontWeight="Bold"
                    Foreground="White"
-                   DockPanel.Dock="Left"/>
-
-                <!-- O'ng tomonda FullName -->
-                <TextBlock Text="{Binding OwnerFullName}"
-                   FontSize="14"
-                   Foreground="White"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Right"
-                   DockPanel.Dock="Right"/>
-            </DockPanel>
+                   Canvas.Top="15"/>
+            </Canvas>
         </Border>
 
         <Grid Grid.Row="1">

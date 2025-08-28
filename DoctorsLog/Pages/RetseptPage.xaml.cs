@@ -30,7 +30,7 @@ public partial class RetseptPage : Page
     {
         // Standart shrift o‘lchamlarini ComboBoxga yuklash
         FontSizeComboBox.Items.Clear();
-        double[] fontSizes = { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
+        double[] fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
         foreach (double size in fontSizes)
         {
             FontSizeComboBox.Items.Add(size);
@@ -104,11 +104,11 @@ public partial class RetseptPage : Page
         if (FontSizeComboBox.SelectedItem is double selectedSize)
         {
             var caretPosition = RichTextEditor.CaretPosition;
-            var currentRun = caretPosition.GetAdjacentElement(LogicalDirection.Forward) as Run;
             var paragraph = caretPosition.Paragraph ?? new Paragraph();
 
             // Joriy Run ning shrift hajmi tanlangan hajmdan farq qilsa, yangi Run yaratish
-            if (currentRun == null || currentRun.FontSize != selectedSize)
+            if (caretPosition.GetAdjacentElement(LogicalDirection.Forward) is not Run currentRun
+                                                            || currentRun.FontSize != selectedSize)
             {
                 var newRun = new Run("") { FontSize = selectedSize };
                 paragraph.Inlines.Add(newRun);
@@ -135,10 +135,10 @@ public partial class RetseptPage : Page
         if (FontSizeComboBox.SelectedItem is double selectedSize)
         {
             var caretPosition = RichTextEditor.CaretPosition;
-            var currentRun = caretPosition.GetAdjacentElement(LogicalDirection.Forward) as Run;
             var paragraph = caretPosition.Paragraph ?? new Paragraph();
 
-            if (currentRun == null || currentRun.FontSize != selectedSize)
+            if (caretPosition.GetAdjacentElement(LogicalDirection.Forward) is not Run currentRun
+                                                                || currentRun.FontSize != selectedSize)
             {
                 var newRun = new Run("") { FontSize = selectedSize };
                 paragraph.Inlines.Add(newRun);

@@ -8,22 +8,19 @@ using System.Windows;
 
 public partial class App : Application
 {
-    public IAppDbContext db { get; private set; }
-    public GoogleSheetsService SheetsService { get; private set; }
-    public SubscriptionService SubscriptionService { get; private set; }
+    public IAppDbContext? Db { get; private set; }
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        db = new AppDbContext();
-        ((AppDbContext)db).Database.Migrate();
+        Db = new AppDbContext();
+        ((AppDbContext)Db).Database.Migrate();
 
-        SheetsService = new GoogleSheetsService("spreadsheetId", "apiKey");
-        SubscriptionService = new SubscriptionService(db, SheetsService);
-        await SubscriptionService.InitializeSubscriptionAsync();
+        var sh = new GoogleSheetsService("spreadsheetId", "apiKey");
+        var ss = new SubscriptionService(Db, sh);
 
-        var mainWindow = new MainWindow(db);
+        var mainWindow = new MainWindow(Db, ss);
         mainWindow.Show();
     }
 }

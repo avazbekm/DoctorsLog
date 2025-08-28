@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DoctorsLog.Windows"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Aktivatsiya" Height="380" Width="500"
+        Title="Aktivatsiya" Height="350" Width="500"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -72,14 +72,17 @@
         <StackPanel Grid.Row="4" Margin="0,20,0,0" HorizontalAlignment="Center">
             <TextBlock Text="⚠️ Foydalanishda davom etish uchun ishlab chiquvchi bilan bog‘laning."
                        TextAlignment="Center"
-                       FontSize="14"
-                       Margin="0,0,0,5"/>
+                       FontSize="14"/>
             <TextBlock Text="📞 Telefon: +998 97 334 03 34"
                        Foreground="DarkBlue"
                        FontSize="13"
-                       TextAlignment="Center"/>
+                       TextAlignment="Center"
+                       Cursor="Hand"
+                       Margin="0,10,0,10"
+                       MouseLeftButtonUp="PhoneTextBlock_MouseLeftButtonUp"/>
+
             <TextBlock>
-                <Hyperlink NavigateUri="t.me/@ovoza_robot"
+                <Hyperlink NavigateUri="t.me/ovoza_robot"
                            RequestNavigate="Hyperlink_RequestNavigate">
                     🤖 Telegram bot: @ovoza_robot
                 </Hyperlink>

@@ -5,6 +5,8 @@ using DoctorsLog.Services.Persistence;
 using DoctorsLog.Services.Subscriptions;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 public partial class ActivationWindow : Window
@@ -57,7 +59,19 @@ public partial class ActivationWindow : Window
 
     private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
     {
-        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        var url = "https://t.me/ovoza_robot";
+        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         e.Handled = true;
+    }
+
+    private void PhoneTextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is TextBlock tb)
+        {
+            Clipboard.SetText(tb.Text.Replace("📞 Telefon: ", "").Trim());
+            StatusText.Text = "📋 Telefon raqami nusxalandi!";
+            StatusText.Foreground = Brushes.Green;
+            StatusText.Visibility = Visibility.Visible;
+        }
     }
 }
