@@ -1,16 +1,16 @@
-﻿using System.Windows;
-using DoctorsLog.Pages;
-using DoctorsLog.Windows;
+﻿namespace DoctorsLog;
+
 using DoctorsLog.Entities;
-using DoctorsLog.Services;
+using DoctorsLog.Pages;
+using DoctorsLog.Services.Persistence;
+using DoctorsLog.Windows;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Controls;
-using Microsoft.EntityFrameworkCore;
 using System.Windows.Media.Animation;
-
-namespace DoctorsLog;
 
 public partial class MainWindow : Window
 {
@@ -19,14 +19,12 @@ public partial class MainWindow : Window
     private long? editingPatientId = null;
 
 #nullable disable
-    public MainWindow()
+    public MainWindow(IAppDbContext db)
     {
         InitializeComponent();
-
-        // XAML'dagi 'PatientsView' ni MainContentControl dan olib olamiz
         patientsView = (Grid)MainContentControl.Content;
 
-        db = new AppDbContext();
+        this.db = db;
 
         MainContentControl.DataContext = db;
         MainContentControl.Content = new Frame
@@ -101,16 +99,13 @@ public partial class MainWindow : Window
 
     private async void ShowPatientsView()
     {
-        // MainContentControl'ga bemorlar view'ini yuklaymiz
         MainContentControl.Content = patientsView;
 
-        // Bemorlar ro'yxatini yangilash
         var patients = await db.Patients.OrderByDescending(p => p.CreatedAt).ToListAsync();
 
-        // Har bir bemorning ism-sharifini katta harflarga o'tkazamiz
         var capitalizedPatients = patients.Select(p =>
         {
-         
+
             if (p.FirstName != null)
             {
                 p.FirstName = p.FirstName.ToUpper();
@@ -383,7 +378,7 @@ public partial class MainWindow : Window
             .Replace("й", "y").Replace("з", "z");
 
         return result;
-    }   
+    }
 
 
     private void PatientsDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)

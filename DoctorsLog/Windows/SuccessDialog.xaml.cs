@@ -1,11 +1,8 @@
 ﻿using System.Windows;
-using System.Windows.Threading;
-
 namespace DoctorsLog.Windows;
 
-/// <summary>
-/// Interaction logic for SuccessDialog.xaml
-/// </summary>
+using System.Windows.Threading;
+
 public partial class SuccessDialog : Window
 {
     public SuccessDialog()

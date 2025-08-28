@@ -103,18 +103,20 @@
                             <TextBlock TextDecorations="Underline">U</TextBlock>
                         </ToggleButton>
                         <Separator />
-                        <ToggleButton Command="EditingCommands.AlignLeft"
-                                      ToolTip="Chapga hizalash">
+                        <StackPanel Orientation="Horizontal">
+                        <RadioButton Command="EditingCommands.AlignLeft"
+                                      ToolTip="Chapga hizalash" IsChecked="True">
                             <md:PackIcon Kind="FormatAlignLeft" />
-                        </ToggleButton>
-                        <ToggleButton Command="EditingCommands.AlignCenter"
+                        </RadioButton>
+                        <RadioButton Command="EditingCommands.AlignCenter"
                                       ToolTip="Markazga hizalash">
                             <md:PackIcon Kind="FormatAlignCenter" />
-                        </ToggleButton>
-                        <ToggleButton Command="EditingCommands.AlignRight"
+                        </RadioButton>
+                        <RadioButton Command="EditingCommands.AlignRight"
                                       ToolTip="O'ngga hizalash">
                             <md:PackIcon Kind="FormatAlignRight" />
-                        </ToggleButton>
+                        </RadioButton>
+                        </StackPanel>
                         <Separator />
                         <ComboBox x:Name="FontSizeComboBox"
                                   Width="60"

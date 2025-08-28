@@ -1,15 +1,17 @@
-﻿namespace DoctorsLog.Services;
+﻿namespace DoctorsLog.Services.Persistence;
 
-using System.IO;
 using DoctorsLog.Entities;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Threading.Tasks;
 
 class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Recipe> Recipes { get; set; }
     public DbSet<RecipeTemplate> RecipeTemplates { get; set; }
+    public DbSet<Subscription> SubscriptionsService { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
 
     public async Task<int> SaveAsync(CancellationToken cancellationToken = default)
         => await SaveChangesAsync(cancellationToken);

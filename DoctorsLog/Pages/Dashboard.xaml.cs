@@ -1,9 +1,9 @@
 ﻿namespace DoctorsLog.Pages;
 
 using DoctorsLog.Entities;
-using DoctorsLog.Services;
-using System.Windows.Controls;
+using DoctorsLog.Services.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Windows.Controls;
 
 public partial class Dashboard : Page
 {
