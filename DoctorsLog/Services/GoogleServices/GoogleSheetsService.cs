@@ -8,12 +8,15 @@ using Google.Apis.Sheets.v4.Data;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using System.Globalization;
 
 public class GoogleSheetsService : IGoogleSheetsService
 {
     private readonly SheetsService _service;
     private readonly string spreadsheetId;
     private readonly string sheetName = "DoctorsLog";
+    private readonly TimeZoneInfo tashkentTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tashkent");
+    private readonly string dateFormat = "yyyy-MM-dd HH:mm";
 
     public GoogleSheetsService(IConfiguration config)
     {
@@ -54,11 +57,15 @@ public class GoogleSheetsService : IGoogleSheetsService
                 MachineName = row.ElementAtOrDefault(3)?.ToString() ?? "",
                 Model = row.ElementAtOrDefault(4)?.ToString() ?? "",
                 Manufacturer = row.ElementAtOrDefault(5)?.ToString() ?? "",
-                StartDate = DateTime.TryParse(row.ElementAtOrDefault(6)?.ToString(), out var sd) ? sd : DateTime.MinValue,
-                EndDate = DateTime.TryParse(row.ElementAtOrDefault(7)?.ToString(), out var ed) ? ed : DateTime.MinValue,
+                StartDate = DateTime.TryParseExact(row.ElementAtOrDefault(6)?.ToString(),
+                                dateFormat, null, DateTimeStyles.None, out var sd) ? sd : DateTime.MinValue,
+                EndDate = DateTime.TryParseExact(row.ElementAtOrDefault(7)?.ToString(),
+                                dateFormat, null, DateTimeStyles.None, out var ed) ? ed : DateTime.MinValue,
                 IsActive = bool.TryParse(row.ElementAtOrDefault(8)?.ToString(), out var act) && act,
-                LastSync = DateTime.UtcNow,
-                CreatedAt = DateTime.TryParse(row.ElementAtOrDefault(10)?.ToString(), out var c) ? c : DateTime.MinValue
+                LastSync = DateTime.TryParseExact(row.ElementAtOrDefault(9)?.ToString(),
+                                dateFormat, null, DateTimeStyles.None, out var ls) ? ls : DateTime.MinValue,
+                CreatedAt = DateTime.TryParseExact(row.ElementAtOrDefault(10)?.ToString(),
+                                dateFormat, null, DateTimeStyles.None, out var c) ? c : DateTime.MinValue
             };
             list.Add(s);
         }
@@ -72,7 +79,7 @@ public class GoogleSheetsService : IGoogleSheetsService
         var sub = all.FirstOrDefault(x => x.DeviceId == deviceId);
         if (sub is not null)
         {
-            sub.LastSync = DateTime.UtcNow;
+            sub.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tashkentTz);
             await UpdateSubscriptionAsync(sub);
         }
         return sub;
@@ -80,7 +87,7 @@ public class GoogleSheetsService : IGoogleSheetsService
 
     public async Task UploadSubscriptionAsync(Subscription subscription)
     {
-        subscription.LastSync = DateTime.UtcNow;
+        subscription.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tashkentTz);
 
         var range = $"{sheetName}!A:K";
         var values = new List<object?>
@@ -91,11 +98,11 @@ public class GoogleSheetsService : IGoogleSheetsService
             subscription.MachineName,
             subscription.Model,
             subscription.Manufacturer,
-            subscription.StartDate,
-            subscription.EndDate,
+            subscription.StartDate.ToString(dateFormat),
+            subscription.EndDate.ToString(dateFormat),
             subscription.IsActive,
-            subscription.LastSync,
-            subscription.CreatedAt
+            subscription.LastSync?.ToString(dateFormat),
+            subscription.CreatedAt.ToString(dateFormat)
         };
         var request = _service.Spreadsheets.Values.Append(
             new ValueRange { Values = [values] },
@@ -110,7 +117,7 @@ public class GoogleSheetsService : IGoogleSheetsService
         var index = all.FindIndex(s => s.DeviceId == subscription.DeviceId);
         if (index == -1) return;
 
-        subscription.LastSync = DateTime.UtcNow;
+        subscription.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tashkentTz);
 
         var range = $"{sheetName}!A{index + 2}:K{index + 2}";
         var values = new List<object?>
@@ -121,11 +128,11 @@ public class GoogleSheetsService : IGoogleSheetsService
             subscription.MachineName,
             subscription.Model,
             subscription.Manufacturer,
-            subscription.StartDate,
-            subscription.EndDate,
+            subscription.StartDate.ToString(dateFormat),
+            subscription.EndDate.ToString(dateFormat),
             subscription.IsActive,
-            subscription.LastSync,
-            subscription.CreatedAt
+            subscription.LastSync?.ToString(dateFormat),
+            subscription.CreatedAt.ToString(dateFormat)
         };
         var body = new ValueRange { Values = [values] };
         var request = _service.Spreadsheets.Values.Update(body, spreadsheetId, range);
