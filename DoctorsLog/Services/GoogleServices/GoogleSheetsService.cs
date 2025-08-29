@@ -73,12 +73,16 @@ public class GoogleSheetsService : IGoogleSheetsService
         return list;
     }
 
-    public async Task<Subscription?> GetSubscriptionAsync(string deviceId)
+    public async Task<Subscription?> GetSubscriptionAsync(Subscription subscription)
     {
         var all = await GetAllSubscriptionsAsync();
-        var sub = all.FirstOrDefault(x => x.DeviceId == deviceId);
+        var sub = all.FirstOrDefault(x => x.DeviceId == subscription.DeviceId);
+
         if (sub is not null)
         {
+            sub.StartDate = CheckDate(sub.StartDate, subscription.StartDate);
+            sub.EndDate = CheckDate(sub.EndDate, subscription.EndDate);
+            sub.CreatedAt = CheckDate(sub.CreatedAt, subscription.CreatedAt);
             sub.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
             await UpdateSubscriptionAsync(sub);
         }
@@ -140,16 +144,14 @@ public class GoogleSheetsService : IGoogleSheetsService
         await request.ExecuteAsync();
     }
 
-    private DateTime ParseFlexibleDate(string? value)
+    #region Private Helpers
+
+    private DateTime ParseFlexibleDate(string? input)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(input))
             return DateTime.MinValue;
 
-        if (DateTime.TryParseExact(value, dateFormat, CultureInfo.InvariantCulture,
-                                   DateTimeStyles.None, out var exact))
-            return exact;
-
-        var knownFormats = new[]
+        var dateFormats = new[]
         {
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd",
@@ -169,23 +171,28 @@ public class GoogleSheetsService : IGoogleSheetsService
             "d MMM yyyy"
         };
 
-        if (DateTime.TryParseExact(value, knownFormats, CultureInfo.InvariantCulture,
-                                   DateTimeStyles.None, out var multiFormat))
-        {
-            if (multiFormat.TimeOfDay == TimeSpan.Zero)
-                return multiFormat.Date.AddDays(1).AddSeconds(-1);
-            return multiFormat;
-        }
+        foreach (var format in dateFormats)
+            if (DateTime.TryParseExact(input, format, CultureInfo.InvariantCulture,
+                                       DateTimeStyles.None, out var parsed))
+                return parsed;
 
-        if (DateTime.TryParse(value, CultureInfo.InvariantCulture,
-                              DateTimeStyles.None, out var parsed))
-        {
-            if (parsed.TimeOfDay == TimeSpan.Zero)
-                return parsed.Date.AddDays(1).AddSeconds(-1);
-            return parsed;
-        }
+        if (DateTime.TryParse(input, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+            return result;
 
         return DateTime.MinValue;
     }
+    private static DateTime CheckDate(DateTime cloudDate, DateTime localDate)
+    {
+        if (cloudDate != DateTime.MinValue && cloudDate.TimeOfDay == TimeSpan.Zero)
+        {
+            if (localDate.TimeOfDay != TimeSpan.Zero)
+                return cloudDate.Date.Add(localDate.TimeOfDay);
 
+            return cloudDate.Date.Add(new TimeSpan(23, 59, 59));
+        }
+
+        return cloudDate;
+    }
+
+    #endregion
 }

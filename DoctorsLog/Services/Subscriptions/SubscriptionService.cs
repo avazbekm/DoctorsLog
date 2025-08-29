@@ -24,7 +24,7 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
             if (GetIsInternetAvailable())
             {
                 (sb ??= new()).DeviceId = GetDeviceUniqueId();
-                var cloudSub = await sheetsService.GetSubscriptionAsync(sb.DeviceId);
+                var cloudSub = await sheetsService.GetSubscriptionAsync(sb);
 
                 if (cloudSub is not null)
                 {
@@ -68,7 +68,7 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
         if (!GetIsInternetAvailable())
             return;
 
-        var cloudSub = await sheetsService.GetSubscriptionAsync(sb.DeviceId);
+        var cloudSub = await sheetsService.GetSubscriptionAsync(sb);
 
         if (cloudSub is null)
         {
@@ -78,10 +78,10 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
         {
             sb.OwnerFullName = cloudSub.OwnerFullName;
             sb.OwnerEmail = cloudSub.OwnerEmail;
+            sb.IsActive = cloudSub.IsActive;
+            sb.LastSync = cloudSub.LastSync;
             sb.StartDate = cloudSub.StartDate;
             sb.EndDate = cloudSub.EndDate;
-            sb.IsActive = cloudSub.IsActive;
-            sb.LastSync = DateTime.Now;
         }
 
         await db.SaveAsync();
