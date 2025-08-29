@@ -3,6 +3,7 @@
 using DoctorsLog.Entities;
 using DoctorsLog.Pages;
 using DoctorsLog.Services.Persistence;
+using DoctorsLog.Services.Subscriptions;
 using DoctorsLog.Windows;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -14,26 +15,144 @@ using System.Windows.Media.Animation;
 
 public partial class MainWindow : Window
 {
-    private Grid patientsView;
-    private IAppDbContext db;
+    private readonly Grid patientsView;
+    private readonly IAppDbContext db;
+    private readonly SubscriptionService ss;
     private long? editingPatientId = null;
+    private Subscription sb;
 
 #nullable disable
-    public MainWindow(IAppDbContext db)
+    public MainWindow(IAppDbContext db, SubscriptionService ss)
     {
         InitializeComponent();
         patientsView = (Grid)MainContentControl.Content;
 
         this.db = db;
+        this.ss = ss;
 
         MainContentControl.DataContext = db;
         MainContentControl.Content = new Frame
         {
             Content = new Dashboard(db)
         };
+
+        Loaded += MainWindow_Loaded;
     }
 
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        sb = await ss.InitializeSubscriptionAsync();
+        ShowNaigationInfo();
+    }
+
+    private async void ShowNaigationInfo()
+    {
+        if (sb.EndDate <= DateTime.Now) return;
+
+        var daysLeft = (sb.EndDate - DateTime.Now).TotalDays;
+        if (daysLeft <= 0) return;
+
+        if (daysLeft > 10)
+        {
+            ShowOwnerNameFixed();
+            return;
+        }
+
+        int messageDurationTime = 20;
+        int fullNameDurationTime = 120;
+
+        while (true)
+        {
+            RunWarningAnimation(messageDurationTime);
+            await Task.Delay(TimeSpan.FromSeconds(messageDurationTime));
+
+            ShowOwnerNameWithFade(fullNameDurationTime);
+            await Task.Delay(TimeSpan.FromSeconds(fullNameDurationTime + 0.5));
+        }
+    }
+
+    private void RunWarningAnimation(int messageDurationTime)
+    {
+        WarningText.Opacity = 1;
+
+        var daysLeft = (sb.EndDate - DateTime.Now).TotalDays;
+        if (daysLeft <= 0) return;
+
+        WarningText.BeginAnimation(Canvas.LeftProperty, null);
+        WarningText.BeginAnimation(OpacityProperty, null);
+
+        WarningText.Text = $"{(sb.IsActive ? "Obuna" : "Sinov")} muddati tugashiga {Math.Ceiling(daysLeft)} kun qoldi. Foydalanishda davom etish uchun ishlab chiquvchi bilan bog'laning!";
+
+        double canvasWidth = WarningCanvas.ActualWidth;
+
+        var textWidth = new FormattedText(
+            WarningText.Text,
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface(WarningText.FontFamily, WarningText.FontStyle, WarningText.FontWeight, WarningText.FontStretch),
+            WarningText.FontSize,
+            Brushes.Black,
+            new NumberSubstitution(),
+            1).WidthIncludingTrailingWhitespace;
+
+        Canvas.SetLeft(WarningText, canvasWidth);
+
+        var scrollAnim = new DoubleAnimation
+        {
+            From = canvasWidth,
+            To = -textWidth,
+            Duration = TimeSpan.FromSeconds(messageDurationTime),
+            FillBehavior = FillBehavior.HoldEnd
+        };
+
+        WarningText.BeginAnimation(Canvas.LeftProperty, scrollAnim);
+    }
+
+    private void ShowOwnerNameWithFade(int fullNameDurationTime)
+    {
+        int fadeTime = 2;
+
+        WarningText.BeginAnimation(Canvas.LeftProperty, null);
+        WarningText.BeginAnimation(OpacityProperty, null);
+        WarningText.ClearValue(Canvas.LeftProperty);
+
+        WarningText.Text = sb.OwnerFullName ?? string.Empty;
+        Canvas.SetRight(WarningText, 10);
+        WarningText.Opacity = 0;
+
+        var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(fadeTime))
+        {
+            FillBehavior = FillBehavior.HoldEnd
+        };
+
+        var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(fadeTime))
+        {
+            BeginTime = TimeSpan.FromSeconds(fullNameDurationTime - fadeTime)
+        };
+
+        var sbAnim = new Storyboard();
+        Storyboard.SetTarget(fadeIn, WarningText);
+        Storyboard.SetTargetProperty(fadeIn, new PropertyPath(UIElement.OpacityProperty));
+
+        Storyboard.SetTarget(fadeOut, WarningText);
+        Storyboard.SetTargetProperty(fadeOut, new PropertyPath(UIElement.OpacityProperty));
+
+        sbAnim.Children.Add(fadeIn);
+        sbAnim.Children.Add(fadeOut);
+
+        sbAnim.Begin();
+    }
+
+    private void ShowOwnerNameFixed()
+    {
+        WarningText.Text = sb.OwnerFullName;
+        WarningText.Opacity = 1;
+        Canvas.SetRight(WarningText, 10);
+    }
+
+
     #region Side Navigation Animation
+
     private void CollapseExpandButton_Click(object sender, RoutedEventArgs e)
     {
         double from = SideNavPanel.Width;
@@ -279,8 +398,6 @@ public partial class MainWindow : Window
             }
     }
 
-
-
     private async void TbSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
         // Debounce qo'shamiz (500ms)
@@ -315,23 +432,23 @@ public partial class MainWindow : Window
         var latinToCyrillic = ToCyrillic(loweredQuery);
         var cyrillicToLatin = ToLatin(loweredQuery);
 
-        return allPatients.Where(p =>
+        return [.. allPatients.Where(p =>
             ContainsAny(p.FirstName, loweredQuery, latinToCyrillic, cyrillicToLatin) ||
             ContainsAny(p.LastName, loweredQuery, latinToCyrillic, cyrillicToLatin) ||
             ContainsAny(p.PhoneNumber, loweredQuery, latinToCyrillic, cyrillicToLatin) ||
             ContainsAny(p.Address, loweredQuery, latinToCyrillic, cyrillicToLatin)
-        ).ToList();
+        )];
     }
 
-    private bool ContainsAny(string text, params string[] terms)
+    private static bool ContainsAny(string text, params string[] terms)
     {
         if (string.IsNullOrEmpty(text)) return false;
 
         var lowerText = text.ToLowerInvariant();
         return terms.Any(term => lowerText.Contains(term));
     }
-    // Lotin → Kirill transliteratsiya (yaxshilangan)
-    private string ToCyrillic(string input)
+
+    private static string ToCyrillic(string input)
     {
         var result = input;
 
@@ -355,18 +472,15 @@ public partial class MainWindow : Window
         return result;
     }
 
-    // Kirill → Lotin transliteratsiya (yaxshilangan)
-    private string ToLatin(string input)
+    private static string ToLatin(string input)
     {
         var result = input;
 
-        // Birikmalar birinchi
         result = result
             .Replace("ғ", "g'").Replace("ў", "o'")
             .Replace("ш", "sh").Replace("ч", "ch")
             .Replace("ё", "yo").Replace("я", "ya").Replace("ю", "yu").Replace("е", "e");
 
-        // Yakka harflar
         result = result
             .Replace("а", "a").Replace("б", "b").Replace("д", "d")
             .Replace("ф", "f").Replace("г", "g").Replace("ҳ", "h")
@@ -379,7 +493,6 @@ public partial class MainWindow : Window
 
         return result;
     }
-
 
     private void PatientsDataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
     {
@@ -453,7 +566,7 @@ public static class InputFormatter
     private static string ExtractDigits(string input)
     {
         var digits = new string([.. input.Where(char.IsDigit)]);
-        return digits.StartsWith("998") ? digits.Substring(3) : digits;
+        return digits.StartsWith("998") ? digits[3..] : digits;
     }
 
     private static string FormatUzbekPhone(string input)
@@ -461,42 +574,43 @@ public static class InputFormatter
         if (string.IsNullOrWhiteSpace(input))
             return "+998 ";
 
-        var digits = new string(input.Where(char.IsDigit).ToArray());
+        var digits = new string([.. input.Where(char.IsDigit)]);
 
         if (digits.StartsWith("998"))
-            digits = digits.Substring(3);
+            digits = digits[3..];
 
         if (digits.Length > 9)
-            digits = digits.Substring(0, 9);
+            digits = digits[..9];
 
         var formatted = "+998";
 
         if (digits.Length >= 1)
-            formatted += " " + digits.Substring(0, 1);
+            formatted += string.Concat(" ", digits.AsSpan(0, 1));
 
         if (digits.Length >= 2)
-            formatted = "+998 " + digits.Substring(0, 2);
+            formatted = string.Concat("+998 ", digits.AsSpan(0, 2));
 
         if (digits.Length >= 3)
-            formatted += " " + digits.Substring(2, 1);
+            formatted += string.Concat(" ", digits.AsSpan(2, 1));
+
 
         if (digits.Length >= 4)
-            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 2);
+            formatted = string.Concat("+998 ", digits.AsSpan(0, 2), " ", digits.AsSpan(2, 2));
 
         if (digits.Length >= 5)
-            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 3);
+            formatted = string.Concat("+998 ", digits.AsSpan(0, 2), " ", digits.AsSpan(2, 3));
 
         if (digits.Length >= 6)
-            formatted += " " + digits.Substring(5, 1);
+            formatted += string.Concat(" ", digits.AsSpan(5, 1));
 
         if (digits.Length >= 7)
-            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 3) + " " + digits.Substring(5, 2);
+            formatted = "+998 " + digits[..2] + " " + digits.Substring(2, 3) + " " + digits.Substring(5, 2);
 
         if (digits.Length >= 8)
-            formatted += " " + digits.Substring(7, 1);
+            formatted += string.Concat(" ", digits.AsSpan(7, 1));
 
         if (digits.Length == 9)
-            formatted = "+998 " + digits.Substring(0, 2) + " " + digits.Substring(2, 3) + " " + digits.Substring(5, 2) + " " + digits.Substring(7, 2);
+            formatted = string.Concat("+998 ", digits.AsSpan(0, 2)) + " " + digits.Substring(2, 3) + " " + digits.Substring(5, 2) + " " + digits.Substring(7, 2);
 
         return formatted;
     }
@@ -514,17 +628,17 @@ public static class InputFormatter
     public static string FormatDate(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
-            return "";
+            return string.Empty;
 
-        var digits = new string(input.Where(char.IsDigit).ToArray());
+        var digits = new string([.. input.Where(char.IsDigit)]);
 
         if (digits.Length > 8)
-            digits = digits.Substring(0, 8); // max DDMMYYYY
+            digits = digits[..8];
 
         string day = "", month = "", year = "";
 
         if (digits.Length >= 1)
-            day = digits.Substring(0, Math.Min(2, digits.Length));
+            day = digits[..Math.Min(2, digits.Length)];
 
         if (digits.Length >= 3)
             month = digits.Substring(2, Math.Min(2, digits.Length - 2));

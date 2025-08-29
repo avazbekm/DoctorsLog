@@ -42,7 +42,7 @@
                     </Border>
 
                 </WrapPanel>
-                <GroupBox Header="📅 Bugun ko'rikdan o'tgan bemorlar" Margin="10">
+                <GroupBox Header="📅 Ko'rikdan o'tgan bemorlar" Margin="10">
                     <Grid>
                         <!-- Blur fon qatlami -->
                         <Rectangle RadiusX="6" RadiusY="6">

@@ -13,6 +13,7 @@ public class Subscription : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public bool IsActive { get; set; }
+    public string ActivationToken { get; set; } = string.Empty;
 
     public DateTime? LastSync { get; set; }
 }

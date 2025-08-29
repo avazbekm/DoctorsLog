@@ -42,8 +42,6 @@ public partial class UserInfoDialog : Window
         Application.Current.Shutdown(); // Ma'lumot kiritilmasa dastur yopiladi
     }
 
-    private bool IsValidEmail(string email)
-    {
-        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-    }
+    private static bool IsValidEmail(string email)
+        => Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 }

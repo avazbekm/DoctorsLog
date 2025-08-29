@@ -4,26 +4,30 @@ using DoctorsLog.Services.GoogleServices;
 using DoctorsLog.Services.Persistence;
 using DoctorsLog.Services.Subscriptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Windows;
 
 public partial class App : Application
 {
-    public IAppDbContext db { get; private set; }
-    public GoogleSheetsService SheetsService { get; private set; }
-    public SubscriptionService SubscriptionService { get; private set; }
+    public IAppDbContext? Db { get; private set; }
+    public static IConfiguration? Config { get; private set; }
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        db = new AppDbContext();
-        ((AppDbContext)db).Database.Migrate();
+        Config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .Build();
 
-        SheetsService = new GoogleSheetsService("spreadsheetId", "apiKey");
-        SubscriptionService = new SubscriptionService(db, SheetsService);
-        await SubscriptionService.InitializeSubscriptionAsync();
+        Db = new AppDbContext();
+        ((AppDbContext)Db).Database.Migrate();
 
-        var mainWindow = new MainWindow(db);
+        var sh = new GoogleSheetsService(Config);
+        var ss = new SubscriptionService(Db, sh);
+
+        var mainWindow = new MainWindow(Db, ss);
         mainWindow.Show();
     }
 }
