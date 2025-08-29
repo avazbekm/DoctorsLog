@@ -7,19 +7,23 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
-using System.IO;
 using System.Globalization;
+using System.IO;
 
 public class GoogleSheetsService : IGoogleSheetsService
 {
-    private readonly SheetsService _service;
+    private readonly SheetsService service;
     private readonly string spreadsheetId;
-    private readonly string sheetName = "DoctorsLog";
-    private readonly TimeZoneInfo tashkentTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tashkent");
-    private readonly string dateFormat = "yyyy-MM-dd HH:mm";
+    private readonly string sheetName;
+    private readonly string dateFormat;
+    private readonly TimeZoneInfo timeZone;
 
     public GoogleSheetsService(IConfiguration config)
     {
+        sheetName = config["ApplicationName"]!;
+        dateFormat = config["DateFormat"]!;
+        timeZone = TimeZoneInfo.FindSystemTimeZoneById(config["TimeZone"]!);
+
         spreadsheetId = config["GoogleSheets:SpreadsheetId"]
                          ?? throw new InvalidOperationException("SpreadsheetId not found in config");
 
@@ -31,17 +35,17 @@ public class GoogleSheetsService : IGoogleSheetsService
         credential = GoogleCredential.FromStream(stream)
             .CreateScoped(SheetsService.Scope.Spreadsheets);
 
-        _service = new SheetsService(new BaseClientService.Initializer
+        service = new SheetsService(new BaseClientService.Initializer
         {
             HttpClientInitializer = credential,
-            ApplicationName = "DoctorsLog"
+            ApplicationName = sheetName
         });
     }
 
     public async Task<List<Subscription>> GetAllSubscriptionsAsync()
     {
         var range = $"{sheetName}!A:K";
-        var request = _service.Spreadsheets.Values.Get(spreadsheetId, range);
+        var request = service.Spreadsheets.Values.Get(spreadsheetId, range);
         var response = await request.ExecuteAsync();
         var values = response.Values;
         var list = new List<Subscription>();
@@ -57,15 +61,11 @@ public class GoogleSheetsService : IGoogleSheetsService
                 MachineName = row.ElementAtOrDefault(3)?.ToString() ?? "",
                 Model = row.ElementAtOrDefault(4)?.ToString() ?? "",
                 Manufacturer = row.ElementAtOrDefault(5)?.ToString() ?? "",
-                StartDate = DateTime.TryParseExact(row.ElementAtOrDefault(6)?.ToString(),
-                                dateFormat, null, DateTimeStyles.None, out var sd) ? sd : DateTime.MinValue,
-                EndDate = DateTime.TryParseExact(row.ElementAtOrDefault(7)?.ToString(),
-                                dateFormat, null, DateTimeStyles.None, out var ed) ? ed : DateTime.MinValue,
+                StartDate = ParseFlexibleDate(row.ElementAtOrDefault(6)?.ToString()),
+                EndDate = ParseFlexibleDate(row.ElementAtOrDefault(7)?.ToString()),
                 IsActive = bool.TryParse(row.ElementAtOrDefault(8)?.ToString(), out var act) && act,
-                LastSync = DateTime.TryParseExact(row.ElementAtOrDefault(9)?.ToString(),
-                                dateFormat, null, DateTimeStyles.None, out var ls) ? ls : DateTime.MinValue,
-                CreatedAt = DateTime.TryParseExact(row.ElementAtOrDefault(10)?.ToString(),
-                                dateFormat, null, DateTimeStyles.None, out var c) ? c : DateTime.MinValue
+                LastSync = ParseFlexibleDate(row.ElementAtOrDefault(9)?.ToString()),
+                CreatedAt = ParseFlexibleDate(row.ElementAtOrDefault(10)?.ToString())
             };
             list.Add(s);
         }
@@ -79,7 +79,7 @@ public class GoogleSheetsService : IGoogleSheetsService
         var sub = all.FirstOrDefault(x => x.DeviceId == deviceId);
         if (sub is not null)
         {
-            sub.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tashkentTz);
+            sub.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
             await UpdateSubscriptionAsync(sub);
         }
         return sub;
@@ -87,7 +87,7 @@ public class GoogleSheetsService : IGoogleSheetsService
 
     public async Task UploadSubscriptionAsync(Subscription subscription)
     {
-        subscription.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tashkentTz);
+        subscription.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
 
         var range = $"{sheetName}!A:K";
         var values = new List<object?>
@@ -104,7 +104,7 @@ public class GoogleSheetsService : IGoogleSheetsService
             subscription.LastSync?.ToString(dateFormat),
             subscription.CreatedAt.ToString(dateFormat)
         };
-        var request = _service.Spreadsheets.Values.Append(
+        var request = service.Spreadsheets.Values.Append(
             new ValueRange { Values = [values] },
             spreadsheetId, range);
         request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
@@ -117,7 +117,7 @@ public class GoogleSheetsService : IGoogleSheetsService
         var index = all.FindIndex(s => s.DeviceId == subscription.DeviceId);
         if (index == -1) return;
 
-        subscription.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tashkentTz);
+        subscription.LastSync = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
 
         var range = $"{sheetName}!A{index + 2}:K{index + 2}";
         var values = new List<object?>
@@ -135,8 +135,57 @@ public class GoogleSheetsService : IGoogleSheetsService
             subscription.CreatedAt.ToString(dateFormat)
         };
         var body = new ValueRange { Values = [values] };
-        var request = _service.Spreadsheets.Values.Update(body, spreadsheetId, range);
+        var request = service.Spreadsheets.Values.Update(body, spreadsheetId, range);
         request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
         await request.ExecuteAsync();
     }
+
+    private DateTime ParseFlexibleDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return DateTime.MinValue;
+
+        if (DateTime.TryParseExact(value, dateFormat, CultureInfo.InvariantCulture,
+                                   DateTimeStyles.None, out var exact))
+            return exact;
+
+        var knownFormats = new[]
+        {
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd",
+            "yyyy/M/d HH:mm",
+            "yyyy/M/d",
+            "M/d/yyyy HH:mm",
+            "M/d/yyyy",
+            "d/M/yyyy HH:mm",
+            "d/M/yyyy",
+            "dd.MM.yyyy HH:mm",
+            "dd.MM.yyyy",
+            "yyyy-MM-ddTHH:mm:ss",
+            "yyyy-MM-ddTHH:mm:ssZ",
+            "yyyy-MM-ddTHH:mm:sszzz",
+            "MMM d, yyyy",
+            "MMMM d yyyy",
+            "d MMM yyyy"
+        };
+
+        if (DateTime.TryParseExact(value, knownFormats, CultureInfo.InvariantCulture,
+                                   DateTimeStyles.None, out var multiFormat))
+        {
+            if (multiFormat.TimeOfDay == TimeSpan.Zero)
+                return multiFormat.Date.AddDays(1).AddSeconds(-1);
+            return multiFormat;
+        }
+
+        if (DateTime.TryParse(value, CultureInfo.InvariantCulture,
+                              DateTimeStyles.None, out var parsed))
+        {
+            if (parsed.TimeOfDay == TimeSpan.Zero)
+                return parsed.Date.AddDays(1).AddSeconds(-1);
+            return parsed;
+        }
+
+        return DateTime.MinValue;
+    }
+
 }

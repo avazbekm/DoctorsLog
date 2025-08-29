@@ -33,14 +33,10 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
                     await db.SaveAsync();
                 }
                 else
-                {
                     await GenerateInitialSubscription();
-                }
             }
             else
-            {
                 await GenerateInitialSubscription();
-            }
         }
 
         await SynchronizeToCloud();
