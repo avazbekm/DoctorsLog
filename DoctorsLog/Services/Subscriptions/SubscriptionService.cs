@@ -40,7 +40,7 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
         }
 
         await SynchronizeToCloud();
-        await HandleSubscriptionExpirationAsync(sb);
+        await HandleSubscriptionExpirationAsync();
         return sb;
     }
 
@@ -90,12 +90,12 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
     private Subscription? GetLocalSubscription()
         => db.Subscriptions.OrderByDescending(s => s.CreatedAt).FirstOrDefault();
 
-    private async Task HandleSubscriptionExpirationAsync(Subscription subscription)
+    private async Task HandleSubscriptionExpirationAsync()
     {
-        if (DateTime.Now < subscription.EndDate)
+        if (DateTime.Now < sb.EndDate)
             return;
 
-        subscription.IsActive = false;
+        sb.IsActive = false;
         await db.SaveAsync();
 
         var window = new ActivationWindow(db, this, sb);
