@@ -24,7 +24,7 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
             if (GetIsInternetAvailable())
             {
                 (sb ??= new()).DeviceId = GetDeviceUniqueId();
-                var cloudSub = await sheetsService.GetSubscriptionAsync(sb.DeviceId);
+                var cloudSub = await sheetsService.GetSubscriptionAsync(sb);
 
                 if (cloudSub is not null)
                 {
@@ -33,18 +33,14 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
                     await db.SaveAsync();
                 }
                 else
-                {
                     await GenerateInitialSubscription();
-                }
             }
             else
-            {
                 await GenerateInitialSubscription();
-            }
         }
 
         await SynchronizeToCloud();
-        await HandleSubscriptionExpirationAsync(sb);
+        await HandleSubscriptionExpirationAsync();
         return sb;
     }
 
@@ -72,7 +68,7 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
         if (!GetIsInternetAvailable())
             return;
 
-        var cloudSub = await sheetsService.GetSubscriptionAsync(sb.DeviceId);
+        var cloudSub = await sheetsService.GetSubscriptionAsync(sb);
 
         if (cloudSub is null)
         {
@@ -82,10 +78,10 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
         {
             sb.OwnerFullName = cloudSub.OwnerFullName;
             sb.OwnerEmail = cloudSub.OwnerEmail;
+            sb.IsActive = cloudSub.IsActive;
+            sb.LastSync = cloudSub.LastSync;
             sb.StartDate = cloudSub.StartDate;
             sb.EndDate = cloudSub.EndDate;
-            sb.IsActive = cloudSub.IsActive;
-            sb.LastSync = DateTime.Now;
         }
 
         await db.SaveAsync();
@@ -94,12 +90,12 @@ public class SubscriptionService(IAppDbContext db, IGoogleSheetsService sheetsSe
     private Subscription? GetLocalSubscription()
         => db.Subscriptions.OrderByDescending(s => s.CreatedAt).FirstOrDefault();
 
-    private async Task HandleSubscriptionExpirationAsync(Subscription subscription)
+    private async Task HandleSubscriptionExpirationAsync()
     {
-        if (DateTime.Now < subscription.EndDate)
+        if (DateTime.Now < sb.EndDate)
             return;
 
-        subscription.IsActive = false;
+        sb.IsActive = false;
         await db.SaveAsync();
 
         var window = new ActivationWindow(db, this, sb);

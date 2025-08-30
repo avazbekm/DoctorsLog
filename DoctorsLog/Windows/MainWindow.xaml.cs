@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly SubscriptionService ss;
     private long? editingPatientId = null;
     private Subscription sb;
+    private const int remainingDays = 5;
 
 #nullable disable
     public MainWindow(IAppDbContext db, SubscriptionService ss)
@@ -52,7 +53,7 @@ public partial class MainWindow : Window
         var daysLeft = (sb.EndDate - DateTime.Now).TotalDays;
         if (daysLeft <= 0) return;
 
-        if (daysLeft > 10)
+        if (daysLeft > remainingDays)
         {
             ShowOwnerNameFixed();
             return;
