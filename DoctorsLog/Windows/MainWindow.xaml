@@ -131,6 +131,18 @@
                             </Border>
                         </StackPanel>
                         <WrapPanel Grid.Row="1" HorizontalAlignment="Left" Margin="0 0 0 10">
+                            <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
+                                <TextBox x:Name="tbLastName"
+                                         Padding="10 5"
+                                         MinWidth="110"
+                                         FontSize="16"
+                                         md:HintAssist.Hint="Familiya"
+                                         Style="{DynamicResource MaterialDesignTextBox}"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         KeyDown="TextBox_KeyDown"/>
+                            </Border>
+
                             <Border CornerRadius="8" Background="#FFFFFF" Margin="0 5">
                                 <TextBox x:Name="tbFirstName"
                                          Padding="10 5"
@@ -141,18 +153,6 @@
                                          BorderThickness="0"
                                          Background="Transparent"
                                          KeyDown="TextBox_KeyDown"/>
-                            </Border>
-
-                            <Border CornerRadius="8" Background="#FFFFFF" Margin="5 5">
-                                <TextBox x:Name="tbLastName"
-                 Padding="10 5"
-                 MinWidth="110"
-                 FontSize="16"
-                 md:HintAssist.Hint="Familiya"
-                 Style="{DynamicResource MaterialDesignTextBox}"
-                 BorderThickness="0"
-                 Background="Transparent"
-                 KeyDown="TextBox_KeyDown"/>
                             </Border>
 
                             <StackPanel Orientation="Horizontal" Margin="5 5" Background="#F0F4F8">
@@ -248,8 +248,8 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
                                     <DataGridTextColumn Header="Familiyasi" Binding="{Binding LastName}" Width="*"/>
+                                    <DataGridTextColumn Header="Ismi" Binding="{Binding FirstName}" Width="*"/>
                                     <DataGridTextColumn Header="Tug'ilgan yili" Binding="{Binding DateOfBirth,StringFormat='dd.MM.yyyy'}" Width="*"/>
                                     <DataGridTextColumn Header="Manzili" Binding="{Binding Address}" Width="*"/>
                                     <DataGridTextColumn Header="Telefoni" Binding="{Binding PhoneNumber}" Width="*"/>

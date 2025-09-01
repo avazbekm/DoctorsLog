@@ -391,8 +391,8 @@ public partial class MainWindow : Window
         if (e.Key == Key.Enter)
             switch (sender)
             {
-                case var _ when sender == tbFirstName: tbLastName.Focus(); break;
-                case var _ when sender == tbLastName: txtBirthDate.Focus(); break;
+                case var _ when sender == tbLastName: tbFirstName.Focus(); break;
+                case var _ when sender == tbFirstName: txtBirthDate.Focus(); break;
                 case var _ when sender == txtBirthDate: tbAddress.Focus(); break;
                 case var _ when sender == tbAddress: tbPhone.Focus(); break;
                 case var _ when sender == tbPhone: btnSave.Focus(); break;
